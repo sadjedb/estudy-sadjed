@@ -1,8 +1,12 @@
 "use client";
+import { getSession } from "next-auth/react";
 import React, { useState } from "react";
 import { FiSearch, FiFilter, FiEdit2, FiTrash2, FiPlus } from "react-icons/fi";
+import withAuth from "@/lib/utils/withAuth";
+import { checkPermissions } from "@/lib/utils";
 // hedo les prj y7atohom les admin mn admin dashboard
-const AdminProjectsPage = () => {
+const AdminProjectsPage = ({ session }) => {
+
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
   const [projects, setProjects] = useState([
@@ -121,7 +125,7 @@ const AdminProjectsPage = () => {
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h2 className="text-xl font-semibold">{project.title}</h2>
-                    <div className="flex space-x-2">
+                    {session?.user && checkPermissions(session?.user?.roles, ["admin"]) && <div className="flex space-x-2">
                       <button className="p-2 text-blue-600 hover:text-blue-800">
                         <FiEdit2 />
                       </button>
@@ -131,7 +135,7 @@ const AdminProjectsPage = () => {
                       >
                         <FiTrash2 />
                       </button>
-                    </div>
+                    </div>}
                   </div>
 
                   <p className="text-gray-600 mb-4 line-clamp-2">
@@ -160,21 +164,19 @@ const AdminProjectsPage = () => {
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
-                        className={`h-2 rounded-full ${
-                          project.status === "Completed"
-                            ? "bg-green-500"
-                            : "bg-blue-500"
-                        }`}
+                        className={`h-2 rounded-full ${project.status === "Completed"
+                          ? "bg-green-500"
+                          : "bg-blue-500"
+                          }`}
                         style={{ width: `${project.completion}%` }}
                       ></div>
                     </div>
                     <div className="mt-1 text-right">
                       <span
-                        className={`text-xs font-medium ${
-                          project.status === "Completed"
-                            ? "text-green-600"
-                            : "text-blue-600"
-                        }`}
+                        className={`text-xs font-medium ${project.status === "Completed"
+                          ? "text-green-600"
+                          : "text-blue-600"
+                          }`}
                       >
                         {project.status}
                       </span>
@@ -205,4 +207,4 @@ const AdminProjectsPage = () => {
   );
 };
 
-export default AdminProjectsPage;
+export default withAuth(AdminProjectsPage, ["public"]);

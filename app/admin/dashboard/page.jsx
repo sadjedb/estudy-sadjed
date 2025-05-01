@@ -1,4 +1,5 @@
 "use client";
+import withAuth from "@/lib/utils/withAuth";
 import React, { useState } from "react";
 import {
   FiPlus,
@@ -125,12 +126,12 @@ const AdminDashboard = () => {
         announcements.map((a) =>
           a.id === editMode.id
             ? {
-                ...a,
-                title: editForm.title,
-                content: editForm.content,
-                department: editForm.department,
-                urgent: editForm.urgent,
-              }
+              ...a,
+              title: editForm.title,
+              content: editForm.content,
+              department: editForm.department,
+              urgent: editForm.urgent,
+            }
             : a
         )
       );
@@ -139,13 +140,13 @@ const AdminDashboard = () => {
         projects.map((p) =>
           p.id === editMode.id
             ? {
-                ...p,
-                title: editForm.title,
-                description: editForm.description,
-                department: editForm.department,
-                spots: editForm.spots,
-                supervisor: editForm.supervisor,
-              }
+              ...p,
+              title: editForm.title,
+              description: editForm.description,
+              department: editForm.department,
+              spots: editForm.spots,
+              supervisor: editForm.supervisor,
+            }
             : p
         )
       );
@@ -205,33 +206,30 @@ const AdminDashboard = () => {
 
         <div className="flex border-b mb-6">
           <button
-            className={`px-4 py-2 ${
-              activeTab === "announcements"
-                ? "border-b-2 border-blue-500 font-medium"
-                : ""
-            }`}
+            className={`px-4 py-2 ${activeTab === "announcements"
+              ? "border-b-2 border-blue-500 font-medium"
+              : ""
+              }`}
             onClick={() => setActiveTab("announcements")}
           >
             <FiBell className="inline mr-2" />
             Announcements
           </button>
           <button
-            className={`px-4 py-2 ${
-              activeTab === "projects"
-                ? "border-b-2 border-blue-500 font-medium"
-                : ""
-            }`}
+            className={`px-4 py-2 ${activeTab === "projects"
+              ? "border-b-2 border-blue-500 font-medium"
+              : ""
+              }`}
             onClick={() => setActiveTab("projects")}
           >
             <FiBook className="inline mr-2" />
             Projects
           </button>
           <button
-            className={`px-4 py-2 ${
-              activeTab === "students"
-                ? "border-b-2 border-blue-500 font-medium"
-                : ""
-            }`}
+            className={`px-4 py-2 ${activeTab === "students"
+              ? "border-b-2 border-blue-500 font-medium"
+              : ""
+              }`}
             onClick={() => setActiveTab("students")}
           >
             <FiUser className="inline mr-2" />
@@ -270,9 +268,9 @@ const AdminDashboard = () => {
                       editMode.type === "announcement"
                         ? setEditForm({ ...editForm, title: e.target.value })
                         : setNewAnnouncement({
-                            ...newAnnouncement,
-                            title: e.target.value,
-                          })
+                          ...newAnnouncement,
+                          title: e.target.value,
+                        })
                     }
                     required
                   />
@@ -293,9 +291,9 @@ const AdminDashboard = () => {
                       editMode.type === "announcement"
                         ? setEditForm({ ...editForm, content: e.target.value })
                         : setNewAnnouncement({
-                            ...newAnnouncement,
-                            content: e.target.value,
-                          })
+                          ...newAnnouncement,
+                          content: e.target.value,
+                        })
                     }
                     required
                   />
@@ -315,13 +313,13 @@ const AdminDashboard = () => {
                       onChange={(e) =>
                         editMode.type === "announcement"
                           ? setEditForm({
-                              ...editForm,
-                              department: e.target.value,
-                            })
+                            ...editForm,
+                            department: e.target.value,
+                          })
                           : setNewAnnouncement({
-                              ...newAnnouncement,
-                              department: e.target.value,
-                            })
+                            ...newAnnouncement,
+                            department: e.target.value,
+                          })
                       }
                     >
                       <option value="all">All Departments</option>
@@ -344,13 +342,13 @@ const AdminDashboard = () => {
                       onChange={(e) =>
                         editMode.type === "announcement"
                           ? setEditForm({
-                              ...editForm,
-                              urgent: e.target.checked,
-                            })
+                            ...editForm,
+                            urgent: e.target.checked,
+                          })
                           : setNewAnnouncement({
-                              ...newAnnouncement,
-                              urgent: e.target.checked,
-                            })
+                            ...newAnnouncement,
+                            urgent: e.target.checked,
+                          })
                       }
                     />
                     <label
@@ -394,14 +392,13 @@ const AdminDashboard = () => {
                   announcements.map((announcement) => (
                     <div
                       key={announcement.id}
-                      className={`p-4 border rounded-lg ${
-                        announcement.urgent
-                          ? "border-red-300 bg-red-50"
-                          : "border-gray-200"
-                      }`}
+                      className={`p-4 border rounded-lg ${announcement.urgent
+                        ? "border-red-300 bg-red-50"
+                        : "border-gray-200"
+                        }`}
                     >
                       {editMode.type === "announcement" &&
-                      editMode.id === announcement.id ? (
+                        editMode.id === announcement.id ? (
                         <div className="text-sm text-gray-500 mb-2">
                           Editing...
                         </div>
@@ -479,9 +476,9 @@ const AdminDashboard = () => {
                         editMode.type === "project"
                           ? setEditForm({ ...editForm, title: e.target.value })
                           : setNewProject({
-                              ...newProject,
-                              title: e.target.value,
-                            })
+                            ...newProject,
+                            title: e.target.value,
+                          })
                       }
                       required
                     />
@@ -500,13 +497,13 @@ const AdminDashboard = () => {
                       onChange={(e) =>
                         editMode.type === "project"
                           ? setEditForm({
-                              ...editForm,
-                              department: e.target.value,
-                            })
+                            ...editForm,
+                            department: e.target.value,
+                          })
                           : setNewProject({
-                              ...newProject,
-                              department: e.target.value,
-                            })
+                            ...newProject,
+                            department: e.target.value,
+                          })
                       }
                     >
                       <option value="cs">Computer Science</option>
@@ -531,13 +528,13 @@ const AdminDashboard = () => {
                     onChange={(e) =>
                       editMode.type === "project"
                         ? setEditForm({
-                            ...editForm,
-                            description: e.target.value,
-                          })
+                          ...editForm,
+                          description: e.target.value,
+                        })
                         : setNewProject({
-                            ...newProject,
-                            description: e.target.value,
-                          })
+                          ...newProject,
+                          description: e.target.value,
+                        })
                     }
                     required
                   />
@@ -559,13 +556,13 @@ const AdminDashboard = () => {
                       onChange={(e) =>
                         editMode.type === "project"
                           ? setEditForm({
-                              ...editForm,
-                              spots: parseInt(e.target.value),
-                            })
+                            ...editForm,
+                            spots: parseInt(e.target.value),
+                          })
                           : setNewProject({
-                              ...newProject,
-                              spots: parseInt(e.target.value),
-                            })
+                            ...newProject,
+                            spots: parseInt(e.target.value),
+                          })
                       }
                       required
                     />
@@ -585,13 +582,13 @@ const AdminDashboard = () => {
                       onChange={(e) =>
                         editMode.type === "project"
                           ? setEditForm({
-                              ...editForm,
-                              supervisor: e.target.value,
-                            })
+                            ...editForm,
+                            supervisor: e.target.value,
+                          })
                           : setNewProject({
-                              ...newProject,
-                              supervisor: e.target.value,
-                            })
+                            ...newProject,
+                            supervisor: e.target.value,
+                          })
                       }
                       required
                     />
@@ -674,7 +671,7 @@ const AdminDashboard = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           {editMode.type === "project" &&
-                          editMode.id === project.id ? (
+                            editMode.id === project.id ? (
                             <span className="text-gray-500">Editing...</span>
                           ) : (
                             <>
@@ -770,4 +767,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default withAuth(AdminDashboard, ["admin"]);
