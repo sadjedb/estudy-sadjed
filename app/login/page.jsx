@@ -10,8 +10,10 @@ import {
   FaEye,
   FaEyeSlash,
 } from "react-icons/fa";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { signIn, useSession } from "next-auth/react";
+import CredentialsProvider from "next-auth/providers/credentials"
 
 const page = () => {
   const router = useRouter();
@@ -21,7 +23,22 @@ const page = () => {
   const [userType, setUserType] = useState("student");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const { data: session, status } = useSession();
+  if (session) {
+    if (session.user.userType === "student") {
+      redirect("/dashboard/student");
+    } else if (session.user.userType === "admin") {
+      redirect("/dashboard/admin");
+    } else {
+      redirect("/dashboard");
+    }
+  }
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     if (!email || !password) {
@@ -29,11 +46,19 @@ const page = () => {
       return;
     }
     if (userType === "student") {
-      console.log("Student login attempt:", { email, password });
-      router.push("/student-dashboard");
+      const res = await signIn("credentials", { redirect: false, email, password, userType })
+      if (res?.error) {
+        setError(res.error);
+      } else {
+        router.push("/dashboard");
+      }
     } else {
-      console.log("Admin login attempt:", { email, password });
-      router.push("/admin-dashboard");
+      const res = await signIn("credentials", { redirect: false, email, password, userType })
+      if (res?.error) {
+        setError(res.error);
+      } else {
+        router.push("/dashboard");
+      }
     }
   };
 
@@ -60,22 +85,20 @@ const page = () => {
         <CardContent>
           <div className="flex mb-6 bg-gray-100 p-1 rounded-lg">
             <button
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                userType === "student"
-                  ? "bg-white shadow-sm text-blue-600"
-                  : "text-gray-600 hover:text-gray-800"
-              }`}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${userType === "student"
+                ? "bg-white shadow-sm text-blue-600"
+                : "text-gray-600 hover:text-gray-800"
+                }`}
               onClick={() => setUserType("student")}
             >
               <FaUserGraduate className="inline mr-2" />
               Student
             </button>
             <button
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                userType === "admin"
-                  ? "bg-white shadow-sm text-blue-600"
-                  : "text-gray-600 hover:text-gray-800"
-              }`}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${userType === "admin"
+                ? "bg-white shadow-sm text-blue-600"
+                : "text-gray-600 hover:text-gray-800"
+                }`}
               onClick={() => setUserType("admin")}
             >
               <FaUserShield className="inline mr-2" />

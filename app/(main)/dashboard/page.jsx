@@ -28,6 +28,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import withAuth from "@/lib/utils/withAuth";
 
 const Dashboard = () => {
   const [projects, setProjects] = useState([
@@ -379,4 +380,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default withAuth(Dashboard, ["student"]);
