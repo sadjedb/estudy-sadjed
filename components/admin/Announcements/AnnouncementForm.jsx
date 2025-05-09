@@ -50,6 +50,24 @@ const AnnouncementForm = ({
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
+            Department *
+          </label>
+          <select
+            name="department"
+            value={formData.department}
+            onChange={handleChange}
+            className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            required
+          >
+            <option value="all">All Departments</option>
+            <option value="cs">Computer Science</option>
+            <option value="math">Mathematics</option>
+            <option value="physics">Physics</option>
+            <option value="chemistry">Chemistry</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Content
           </label>
           <textarea

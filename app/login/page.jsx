@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,55 +10,64 @@ import {
   FaEye,
   FaEyeSlash,
 } from "react-icons/fa";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { signIn, useSession } from "next-auth/react";
-import CredentialsProvider from "next-auth/providers/credentials"
 
-const page = () => {
+const Page = () => {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [userType, setUserType] = useState("student");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const { data: session, status } = useSession();
-  if (session) {
-    if (session.user.userType === "student") {
-      redirect("/dashboard/student");
-    } else if (session.user.userType === "admin") {
-      redirect("/dashboard/admin");
-    } else {
-      redirect("/dashboard");
+
+  useEffect(() => {
+    if (session?.user) {
+      const path = session.user.userType === "admin" ? "/dashboard/admin" : "/";
+      router.push(path);
     }
-  }
+  }, [session, router]);
+
   if (status === "loading") {
     return <div>Loading...</div>;
   }
 
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setError("");
-    if (!email || !password) {
-      setError("Please fill in all fields");
-      return;
-    }
-    if (userType === "student") {
-      const res = await signIn("credentials", { redirect: false, email, password, userType })
-      if (res?.error) {
-        setError(res.error);
-      } else {
-        router.push("/dashboard");
+
+    try {
+      if (!email || !password) {
+        throw new Error("Please fill in all fields");
       }
-    } else {
-      const res = await signIn("credentials", { redirect: false, email, password, userType })
+
+      // const validDomains = ["university.edu", "admin.university.edu"];
+      // const emailDomain = email.split("@")[1];
+      // if (!validDomains.includes(emailDomain)) {
+      //   throw new Error(
+      //     `Invalid email domain. Use ${validDomains.join(" or ")}`
+      //   );
+      // }
+
+      const res = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+        userType,
+      });
+
       if (res?.error) {
-        setError(res.error);
-      } else {
-        router.push("/dashboard");
+        throw new Error(res.error);
       }
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -85,20 +94,22 @@ const page = () => {
         <CardContent>
           <div className="flex mb-6 bg-gray-100 p-1 rounded-lg">
             <button
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${userType === "student"
-                ? "bg-white shadow-sm text-blue-600"
-                : "text-gray-600 hover:text-gray-800"
-                }`}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                userType === "student"
+                  ? "bg-white shadow-sm text-blue-600"
+                  : "text-gray-600 hover:text-gray-800"
+              }`}
               onClick={() => setUserType("student")}
             >
               <FaUserGraduate className="inline mr-2" />
               Student
             </button>
             <button
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${userType === "admin"
-                ? "bg-white shadow-sm text-blue-600"
-                : "text-gray-600 hover:text-gray-800"
-                }`}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                userType === "admin"
+                  ? "bg-white shadow-sm text-blue-600"
+                  : "text-gray-600 hover:text-gray-800"
+              }`}
               onClick={() => setUserType("admin")}
             >
               <FaUserShield className="inline mr-2" />
@@ -164,9 +175,9 @@ const page = () => {
               </div>
             )}
 
-            <Button type="submit" className="w-full">
+            <Button className="w-full" disabled={loading}>
               <FaSignInAlt className="mr-2" />
-              Sign In
+              {loading ? "Signing In..." : "Sign In"}
             </Button>
           </form>
           <div className="mt-6 text-center text-sm text-gray-600">
@@ -187,4 +198,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

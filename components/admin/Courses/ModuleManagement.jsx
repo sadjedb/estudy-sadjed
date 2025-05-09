@@ -298,6 +298,7 @@ const ModuleManagement = () => {
                 </label>
                 <textarea
                   name="description"
+                  className="border-2 w-full"
                   value={moduleData.description}
                   onChange={handleModuleChange}
                   rows={4}
@@ -357,6 +358,7 @@ const ModuleManagement = () => {
                         </label>
                         <textarea
                           name="description"
+                          className="border-2 w-full"
                           value={item.description}
                           onChange={(e) => handleSyllabusChange(index, e)}
                           rows={2}

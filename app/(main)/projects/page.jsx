@@ -4,9 +4,8 @@ import React, { useState } from "react";
 import { FiSearch, FiFilter, FiEdit2, FiTrash2, FiPlus } from "react-icons/fi";
 import withAuth from "@/lib/utils/withAuth";
 import { checkPermissions } from "@/lib/utils";
-// hedo les prj y7atohom les admin mn admin dashboard
+import { Plus } from "lucide-react";
 const AdminProjectsPage = ({ session }) => {
-
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
   const [projects, setProjects] = useState([
@@ -75,10 +74,14 @@ const AdminProjectsPage = ({ session }) => {
             </h1>
             <p className="text-gray-600">Display and manage student projects</p>
           </div>
-          <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-            <FiPlus className="mr-2" />
-            Add New Project
-          </button>
+
+          {session?.user &&
+            checkPermissions(session?.user?.roles, ["admin"]) && (
+              <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <FiPlus className="mr-2" />
+                Add New Project
+              </button>
+            )}
         </div>
 
         <div className="flex flex-col md:flex-row gap-4 mb-8">
@@ -125,17 +128,20 @@ const AdminProjectsPage = ({ session }) => {
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-2">
                     <h2 className="text-xl font-semibold">{project.title}</h2>
-                    {session?.user && checkPermissions(session?.user?.roles, ["admin"]) && <div className="flex space-x-2">
-                      <button className="p-2 text-blue-600 hover:text-blue-800">
-                        <FiEdit2 />
-                      </button>
-                      <button
-                        className="p-2 text-red-600 hover:text-red-800"
-                        onClick={() => deleteProject(project.id)}
-                      >
-                        <FiTrash2 />
-                      </button>
-                    </div>}
+                    {session?.user &&
+                      checkPermissions(session?.user?.roles, ["admin"]) && (
+                        <div className="flex space-x-2">
+                          <button className="p-2 text-blue-600 hover:text-blue-800">
+                            <FiEdit2 />
+                          </button>
+                          <button
+                            className="p-2 text-red-600 hover:text-red-800"
+                            onClick={() => deleteProject(project.id)}
+                          >
+                            <FiTrash2 />
+                          </button>
+                        </div>
+                      )}
                   </div>
 
                   <p className="text-gray-600 mb-4 line-clamp-2">
@@ -164,24 +170,35 @@ const AdminProjectsPage = ({ session }) => {
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
-                        className={`h-2 rounded-full ${project.status === "Completed"
-                          ? "bg-green-500"
-                          : "bg-blue-500"
-                          }`}
+                        className={`h-2 rounded-full ${
+                          project.status === "Completed"
+                            ? "bg-green-500"
+                            : "bg-blue-500"
+                        }`}
                         style={{ width: `${project.completion}%` }}
                       ></div>
                     </div>
                     <div className="mt-1 text-right">
                       <span
-                        className={`text-xs font-medium ${project.status === "Completed"
-                          ? "text-green-600"
-                          : "text-blue-600"
-                          }`}
+                        className={`text-xs font-medium ${
+                          project.status === "Completed"
+                            ? "text-green-600"
+                            : "text-blue-600"
+                        }`}
                       >
                         {project.status}
                       </span>
                     </div>
                   </div>
+                  {session?.user &&
+                    checkPermissions(session?.user?.roles, ["student"]) && (
+                      <div className="flex space-x-2 justify-end">
+                        <button className="p-2 bg-blue-600 hover:bg-blue-800 text-white flex justify-center items-center gap-2 border-[1px] rounded-lg">
+                          Add to Wishlist
+                          <Plus size={23} />
+                        </button>
+                      </div>
+                    )}
                 </div>
               </div>
             ))}

@@ -71,24 +71,6 @@ const StudentForm = ({
     }));
   };
 
-  const addProjectToWishlist = () => {
-    if (newWishlistItem && !formData.wishlist.includes(newWishlistItem)) {
-      setFormData((prev) => ({
-        ...prev,
-        wishlist: [...prev.wishlist, newWishlistItem],
-      }));
-      setNewWishlistItem("");
-      setFormErrors((prev) => ({ ...prev, wishlist: null }));
-    }
-  };
-
-  const removeProjectFromWishlist = (index) => {
-    setFormData((prev) => ({
-      ...prev,
-      wishlist: prev.wishlist.filter((_, i) => i !== index),
-    }));
-  };
-
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -117,17 +99,6 @@ const StudentForm = ({
       };
       console.log(studentData);
       await handleAddStudent(studentData);
-
-      // if (!initialStudent.id) {
-      //   setFormData({
-      //     name: "",
-      //     email: "",
-      //     password: "",
-      //     department: "cs",
-      //     wishlist: [],
-      //   });
-      //   setNewWishlistItem("");
-      // }
 
       setShowAddForm(false);
     } catch (error) {
@@ -240,64 +211,6 @@ const StudentForm = ({
               <option value="physics">Physics</option>
               <option value="chemistry">Chemistry</option>
             </select>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Project Wishlist *
-          </label>
-          <div className="flex space-x-2 mb-2">
-            <select
-              className={`flex-1 p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                formErrors.wishlist ? "border-red-500" : "border-gray-300"
-              }`}
-              value={newWishlistItem}
-              onChange={(e) => setNewWishlistItem(e.target.value)}
-              disabled={availableProjects.length === 0}
-            >
-              <option value="">Select a project</option>
-              {availableProjects.map((project) => (
-                <option key={project.id} value={project.title}>
-                  {project.title} ({project.department.toUpperCase()})
-                </option>
-              ))}
-            </select>
-            <button
-              type="button"
-              onClick={addProjectToWishlist}
-              className="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center disabled:opacity-50 transition-colors duration-200"
-              disabled={!newWishlistItem}
-            >
-              <FiPlus className="inline" />
-            </button>
-          </div>
-          {formErrors.wishlist && (
-            <p className="mt-1 text-sm text-red-600">{formErrors.wishlist}</p>
-          )}
-          <div className="flex flex-wrap gap-2 mt-2">
-            {formData.wishlist.length > 0 ? (
-              formData.wishlist.map((project, index) => (
-                <div
-                  key={index}
-                  className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full flex items-center"
-                >
-                  {project}
-                  <button
-                    type="button"
-                    onClick={() => removeProjectFromWishlist(index)}
-                    className="ml-2 text-blue-500 hover:text-blue-700 transition-colors duration-200"
-                    aria-label={`Remove ${project} from wishlist`}
-                  >
-                    <FiX size={14} />
-                  </button>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-gray-500">
-                No projects added to wishlist
-              </p>
-            )}
           </div>
         </div>
 
