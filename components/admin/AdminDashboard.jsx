@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FiPlus, FiTrash2, FiBook, FiCalendar, FiUser } from "react-icons/fi";
 import TabNavigation from "./Shared/TabNavigation";
 import AnnouncementList from "./Announcements/AnnouncementList";
@@ -9,6 +9,9 @@ import StudentList from "./Students/StudentList";
 import StudentForm from "./Students/StudentForm";
 import AnnouncementForm from "./Announcements/AnnouncementForm";
 import ModuleManagement from "./Courses/ModuleManagement";
+import useApi from "@/hooks/useApi";
+import useProject from "@/hooks/useProject";
+import useStudent from "@/hooks/useStudent";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("announcements");
@@ -143,11 +146,23 @@ const AdminDashboard = () => {
   const deleteAnnouncement = (id) => {
     setAnnouncements(announcements.filter((a) => a.id !== id));
   };
+  const { loading, data: projectsData, addProject } = useProject();
+  const { loading: loadingStudents, data: studentsData, addStudent } = useStudent()
+  console.log("Students Data:", studentsData);
+
+  console.log("Projects Data:", projectsData);
+  useEffect(() => {
+
+    if (projectsData) {
+      setProjects(projectsData.projects)
+    }
+  }, [projectsData])
 
   // Project Handlers
-  const handleAddProject = (e) => {
+  const handleAddProject = async (e) => {
     e.preventDefault();
-    const project = { ...newProject, id: projects.length + 1 };
+    const project = { ...newProject };
+    await addProject(project);
     setProjects([...projects, project]);
     setNewProject({
       title: "",
@@ -163,9 +178,9 @@ const AdminDashboard = () => {
   };
 
   // Student Handlers
-  const handleAddStudent = (e) => {
-    alert("hello");
+  const handleAddStudent = async (e) => {
     e.preventDefault();
+    await addStudent(newStudent);
     const student = { ...newStudent, id: students.length + 1 };
     setStudents([...students, student]);
     setNewStudent({ name: "", email: "", department: "cs", wishlist: [] });
