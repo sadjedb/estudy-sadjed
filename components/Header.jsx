@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 // import logo from "../assets/logonobg.png";
 import { RiShoppingBag4Line } from "react-icons/ri";
 import { usePathname } from "next/navigation";
@@ -13,7 +13,17 @@ const Header = () => {
   const pathname = usePathname();
   const session = useSession();
   console.log("Session:", session);
+  const [isAdmin, setIsAdmin] = useState(false);
 
+  useEffect(() => {
+    if (session.status === "authenticated" && session.data?.user?.roles) {
+      const adminRole = session.data.user.roles.some(
+        (role) => role === "admin"
+      );
+      setIsAdmin(adminRole);
+    }
+  }, [session]);
+  console.log(isAdmin);
   useEffect(() => {
     console.log("Current route:", pathname);
   }, [pathname]);
@@ -33,8 +43,9 @@ const Header = () => {
         <ul className="flex gap-8">
           <li className="relative group">
             <Link
-              className={`${pathname === "/" ? "font-bold underline underline-offset-" : " "
-                }`}
+              className={`${
+                pathname === "/" ? "font-bold underline underline-offset-" : " "
+              }`}
               href="/"
               onClick={() => setIsMenuOpen(false)}
             >
@@ -43,11 +54,12 @@ const Header = () => {
           </li>
           <li className="relative group">
             <Link
-              href="/dashboard"
-              className={`${pathname.includes("dashboard")
-                ? "font-bold underline underline-offset-"
-                : " "
-                }`}
+              href={isAdmin ? `/admin/dashboard` : `/dashboard`}
+              className={`${
+                pathname.includes("dashboard")
+                  ? "font-bold underline underline-offset-"
+                  : " "
+              }`}
               onClick={() => setIsMenuOpen(false)}
             >
               Dashboard
@@ -55,10 +67,11 @@ const Header = () => {
           </li>
           <li className="relative group">
             <Link
-              className={`${pathname.includes("departments")
-                ? "font-bold underline underline-offset-"
-                : " "
-                }`}
+              className={`${
+                pathname.includes("departments")
+                  ? "font-bold underline underline-offset-"
+                  : " "
+              }`}
               href="/departments"
               onClick={() => setIsMenuOpen(false)}
             >
@@ -67,16 +80,32 @@ const Header = () => {
           </li>
           <li className="relative group">
             <Link
-              className={`${pathname.includes("projects")
-                ? "font-bold underline underline-offset-"
-                : " "
-                }`}
+              className={`${
+                pathname.includes("projects")
+                  ? "font-bold underline underline-offset-"
+                  : " "
+              }`}
               href="/projects"
               onClick={() => setIsMenuOpen(false)}
             >
               Projects
             </Link>
           </li>
+          {session.status === "authenticated" && !isAdmin && (
+            <li className="relative group">
+              <Link
+                className={`${
+                  pathname.includes("profile")
+                    ? "font-bold underline underline-offset-"
+                    : " "
+                }`}
+                href="/profile"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Profile
+              </Link>
+            </li>
+          )}
         </ul>
       </div>
 
@@ -85,10 +114,11 @@ const Header = () => {
           <ul className="flex flex-col items-center gap-4">
             <li className="relative group">
               <Link
-                className={`${pathname === "/"
-                  ? "font-bold underline underline-offset-"
-                  : " "
-                  }`}
+                className={`${
+                  pathname === "/"
+                    ? "font-bold underline underline-offset-"
+                    : " "
+                }`}
                 href="/"
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -98,10 +128,11 @@ const Header = () => {
             <li className="relative group">
               <Link
                 href="/dashboard"
-                className={`${pathname.includes("dashboard")
-                  ? "font-bold underline underline-offset-"
-                  : " "
-                  }`}
+                className={`${
+                  pathname.includes("dashboard")
+                    ? "font-bold underline underline-offset-"
+                    : " "
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 Dashboard
@@ -109,10 +140,11 @@ const Header = () => {
             </li>
             <li className="relative group">
               <Link
-                className={`${pathname.includes("departments")
-                  ? "font-bold underline underline-offset-"
-                  : " "
-                  }`}
+                className={`${
+                  pathname.includes("departments")
+                    ? "font-bold underline underline-offset-"
+                    : " "
+                }`}
                 href="/departments"
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -121,33 +153,53 @@ const Header = () => {
             </li>
             <li className="relative group">
               <Link
-                className={`${pathname.includes("projects")
-                  ? "font-bold underline underline-offset-"
-                  : " "
-                  }`}
+                className={`${
+                  pathname.includes("projects")
+                    ? "font-bold underline underline-offset-"
+                    : " "
+                }`}
                 href="/projects"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Projects
               </Link>
             </li>
+            {session.status === "authenticated" && !isAdmin && (
+              <li className="relative group">
+                <Link
+                  className={`${
+                    pathname.includes("profile")
+                      ? "font-bold underline underline-offset-"
+                      : " "
+                  }`}
+                  href="/profile"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Profile
+                </Link>
+              </li>
+            )}
           </ul>
         </div>
       )}
 
       <div className="flex gap-4 items-center">
-        {session.status !== "authenticated" && <Link
-          href={"/login"}
-          className=" bg-black text-white px-4  py-2  rounded hover:bg-gray-800 transition-colors "
-        >
-          Login
-        </Link>}
-        {session.status === "authenticated" && <button
-          onClick={() => handleLogout()}
-          className=" bg-black text-white px-4  py-2  rounded hover:bg-gray-800 transition-colors "
-        >
-          Logout
-        </button>}
+        {session.status !== "authenticated" && (
+          <Link
+            href={"/login"}
+            className=" bg-black text-white px-4  py-2  rounded hover:bg-gray-800 transition-colors "
+          >
+            Login
+          </Link>
+        )}
+        {session.status === "authenticated" && (
+          <button
+            onClick={() => handleLogout()}
+            className=" bg-black text-white px-4  py-2  rounded hover:bg-gray-800 transition-colors "
+          >
+            Logout
+          </button>
+        )}
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           className="md:hidden"
