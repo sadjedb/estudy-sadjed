@@ -12,7 +12,6 @@ const ProjectForm = ({
   exitEditMode,
   handleAddProject,
 }) => {
-  // Reset form when exiting edit mode
   useEffect(() => {
     if (!editMode.type && editMode.id === null) {
       setNewProject({

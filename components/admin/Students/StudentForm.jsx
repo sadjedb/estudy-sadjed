@@ -8,35 +8,36 @@ const StudentForm = ({
   handleAddStudent,
   initialStudent = {
     id: null,
-    name: "",
+    first_name: "",
+    last_name: "",
     email: "",
     password: "",
     department: "cs",
     wishlist: [],
   },
 }) => {
-  // Form state
-  const [formData, setFormData] = useState(initialStudent);
-  const [newWishlistItem, setNewWishlistItem] = useState("");
+  const [formData, setFormData] = useState({
+    ...initialStudent,
+    wishlist: [],
+  });
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    setFormData(initialStudent);
+    setFormData({
+      ...initialStudent,
+      wishlist: initialStudent.id ? initialStudent.wishlist : [],
+    });
     setFormErrors({});
   }, [initialStudent.id]);
-
-  const availableProjects = projects.filter(
-    (project) =>
-      !formData.wishlist.includes(project.title) &&
-      project.department === formData.department
-  );
 
   const validateForm = () => {
     const errors = {};
 
-    if (!formData.name.trim()) errors.name = "Name is required";
+    if (!formData.first_name.trim())
+      errors.first_name = "First name is required";
+    if (!formData.last_name.trim()) errors.last_name = "Last name is required";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       errors.email = "Valid email is required";
     }
@@ -44,9 +45,6 @@ const StudentForm = ({
       errors.password = "Password is required";
     } else if (formData.password && formData.password.length < 6) {
       errors.password = "Password must be at least 6 characters";
-    }
-    if (formData.wishlist.length === 0) {
-      errors.wishlist = "At least one project is required";
     }
 
     setFormErrors(errors);
@@ -67,7 +65,7 @@ const StudentForm = ({
     setFormData((prev) => ({
       ...prev,
       department,
-      wishlist: prev.department === department ? prev.wishlist : [],
+      wishlist: [],
     }));
   };
 
@@ -75,7 +73,8 @@ const StudentForm = ({
     setShowPassword(!showPassword);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setIsSubmitting(true);
 
     if (!validateForm()) {
@@ -85,21 +84,15 @@ const StudentForm = ({
 
     try {
       const studentData = {
-        ...formData,
-        password:
-          initialStudent.id && !formData.password
-            ? undefined
-            : formData.password,
-        wishlist: formData.wishlist
-          .map((title) => {
-            const project = projects.find((p) => p.title === title);
-            return project ? project.id : null;
-          })
-          .filter((id) => id !== null),
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        email: formData.email,
+        password: formData.password || undefined,
+        department: formData.department,
+        wishlist: [],
       };
-      console.log(studentData);
-      await handleAddStudent(studentData);
 
+      await handleAddStudent(studentData);
       setShowAddForm(false);
     } catch (error) {
       console.error("Submission error:", error);
@@ -121,24 +114,50 @@ const StudentForm = ({
         <div className="grid md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Name *
+              First Name *
             </label>
             <input
               type="text"
-              name="name"
+              name="first_name"
               className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                formErrors.name ? "border-red-500" : "border-gray-300"
+                formErrors.first_name ? "border-red-500" : "border-gray-300"
               }`}
-              value={formData.name}
+              value={formData.first_name}
               onChange={handleChange}
               minLength={3}
               maxLength={50}
             />
-            {formErrors.name && (
-              <p className="mt-1 text-sm text-red-600">{formErrors.name}</p>
+            {formErrors.first_name && (
+              <p className="mt-1 text-sm text-red-600">
+                {formErrors.first_name}
+              </p>
             )}
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Last Name *
+            </label>
+            <input
+              type="text"
+              name="last_name"
+              className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                formErrors.last_name ? "border-red-500" : "border-gray-300"
+              }`}
+              value={formData.last_name}
+              onChange={handleChange}
+              minLength={3}
+              maxLength={50}
+            />
+            {formErrors.last_name && (
+              <p className="mt-1 text-sm text-red-600">
+                {formErrors.last_name}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Email *
@@ -156,9 +175,7 @@ const StudentForm = ({
               <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>
             )}
           </div>
-        </div>
 
-        <div className="grid md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               {initialStudent.id ? "New Password" : "Password *"}
@@ -195,7 +212,9 @@ const StudentForm = ({
               </p>
             )}
           </div>
+        </div>
 
+        <div className="grid md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Department *

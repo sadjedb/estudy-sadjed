@@ -1,84 +1,89 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 const useProject = () => {
-    const url = '/api/projects';
-    const method = 'GET';
-    const body = null;
-    const [loading, setLoading] = useState(false);
-    const [data, setData] = useState(null);
-    const [statusCode, setStatusCode] = useState(null);
+  const url = "/api/projects";
+  const method = "GET";
+  const body = null;
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState(null);
+  const [statusCode, setStatusCode] = useState(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setLoading(true);
-            try {
-                const options = {
-                    method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                };
-
-                if (body && method.toUpperCase() === 'POST') {
-                    options.body = JSON.stringify(body);
-                }
-
-                const response = await fetch(url, options);
-
-                setStatusCode(response.status);
-                const result = await response.json();
-                setData(result);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            } finally {
-                setLoading(false);
-            }
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const options = {
+          method,
+          headers: {
+            "Content-Type": "application/json",
+          },
         };
 
-        fetchData();
-    }, []);
-
-    const addProject = async (project) => {
-        setLoading(true);
-        try {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(project),
-            });
-            setStatusCode(response.status);
-            const result = await response.json();
-            setData((prevData) => [...(prevData || []), result]);
-        } catch (error) {
-            console.error('Error adding project:', error);
-        } finally {
-            setLoading(false);
+        if (body && method.toUpperCase() === "POST") {
+          options.body = JSON.stringify(body);
         }
+
+        const response = await fetch(url, options);
+
+        setStatusCode(response.status);
+        const result = await response.json();
+        setData(result);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const removeProject = async (projectId) => {
-        setLoading(true);
-        try {
-            const response = await fetch(`${url}/${projectId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            setStatusCode(response.status);
-            if (response.ok) {
-                setData((prevData) => (prevData || []).filter((item) => item.id !== projectId));
-            }
-        } catch (error) {
-            console.error('Error removing project:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    fetchData();
+  }, []);
 
-    return { loading, data, statusCode, addProject, removeProject };
+  const addProject = async (project) => {
+    setLoading(true);
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(project),
+      });
+      setStatusCode(response.status);
+      const result = await response.json();
+      setData((prevData) => ({
+        ...prevData,
+        projects: [...prevData.projects, { ...project, id: result.projectId }],
+      }));
+    } catch (error) {
+      console.error("Error adding project:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const removeProject = async (projectId) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${url}/${projectId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      setStatusCode(response.status);
+      if (response.ok) {
+        setData((prevData) =>
+          (prevData || []).filter((item) => item.id !== projectId)
+        );
+      }
+    } catch (error) {
+      console.error("Error removing project:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { loading, data, statusCode, addProject, removeProject };
 };
 
 export default useProject;
