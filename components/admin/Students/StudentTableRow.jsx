@@ -1,5 +1,4 @@
 const StudentTableRow = ({ student, projects }) => {
-  console.log(student.wishlist);
   return (
     <tr>
       <td className="px-6 py-4 whitespace-nowrap">
