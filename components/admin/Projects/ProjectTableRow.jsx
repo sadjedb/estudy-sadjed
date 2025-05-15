@@ -18,7 +18,7 @@ const ProjectTableRow = ({
         {project.department.toUpperCase()}
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-        {project.spots}
+        {project.available_spots}
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
         {project.supervisor}

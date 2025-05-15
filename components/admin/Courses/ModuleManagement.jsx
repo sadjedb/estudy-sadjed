@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-// import { Textarea } from "@/components/ui/textarea";
 import {
   FaPlus,
   FaTrash,
@@ -14,7 +13,9 @@ import {
 } from "react-icons/fa";
 
 const ModuleManagement = () => {
-  // Form state for new module
+  const [modules, setModules] = useState([]);
+  const [editingModuleId, setEditingModuleId] = useState(null);
+
   const [moduleData, setModuleData] = useState({
     title: "",
     code: "",
@@ -24,62 +25,43 @@ const ModuleManagement = () => {
     description: "",
     schedule: "",
     location: "",
+    syllabus: [{ week: "", description: "", courseFile: null, tdFile: null }],
   });
 
-  // Syllabus items for the current module
-
-  // Handle file uploads
-
-  // Submit the entire module with syllabus
-
-  // Syllabus items for the current module
-  const [syllabusItems, setSyllabusItems] = useState([
-    { week: "", description: "", courseFile: null, tdFile: null },
-  ]);
-
-  // List of all modules (would come from API in real app)
-  const [modules, setModules] = useState([]);
-
-  // Track which module is being edited
-  const [editingModuleId, setEditingModuleId] = useState(null);
-
-  // Handle module input changes
   const handleModuleChange = (e) => {
     const { name, value } = e.target;
     setModuleData({ ...moduleData, [name]: value });
   };
 
-  // Handle syllabus item changes
   const handleSyllabusChange = (index, e) => {
     const { name, value } = e.target;
-    const updatedSyllabus = [...syllabusItems];
+    const updatedSyllabus = [...moduleData.syllabus];
     updatedSyllabus[index][name] = value;
-    setSyllabusItems(updatedSyllabus);
+    setModuleData({ ...moduleData, syllabus: updatedSyllabus });
   };
 
-  // Handle file uploads
   const handleFileUpload = (index, type, e) => {
     const file = e.target.files[0];
-    const updatedSyllabus = [...syllabusItems];
+    const updatedSyllabus = [...moduleData.syllabus];
     updatedSyllabus[index][type] = file;
-    setSyllabusItems(updatedSyllabus);
+    setModuleData({ ...moduleData, syllabus: updatedSyllabus });
   };
 
-  // Add new syllabus item
   const addSyllabusItem = () => {
-    setSyllabusItems([
-      ...syllabusItems,
-      { week: "", description: "", courseFile: null, tdFile: null },
-    ]);
+    setModuleData({
+      ...moduleData,
+      syllabus: [
+        ...moduleData.syllabus,
+        { week: "", description: "", courseFile: null, tdFile: null },
+      ],
+    });
   };
 
-  // Remove syllabus item
   const removeSyllabusItem = (index) => {
-    const updatedSyllabus = syllabusItems.filter((_, i) => i !== index);
-    setSyllabusItems(updatedSyllabus);
+    const updatedSyllabus = moduleData.syllabus.filter((_, i) => i !== index);
+    setModuleData({ ...moduleData, syllabus: updatedSyllabus });
   };
 
-  // Cancel editing
   const cancelEdit = () => {
     setEditingModuleId(null);
     setModuleData({
@@ -91,86 +73,36 @@ const ModuleManagement = () => {
       description: "",
       schedule: "",
       location: "",
+      syllabus: [{ week: "", description: "", courseFile: null, tdFile: null }],
     });
-    setSyllabusItems([
-      { week: "", description: "", courseFile: null, tdFile: null },
-    ]);
   };
 
-  // Set up form for editing a module
   const setupEditForm = (module) => {
     setEditingModuleId(module.id);
     setModuleData({
-      title: module.title,
-      code: module.code,
-      instructor: module.instructor,
-      department: module.department,
-      credits: module.credits,
-      description: module.description,
-      schedule: module.schedule,
-      location: module.location,
+      ...module,
+      syllabus: module.syllabus.map((item) => ({ ...item })),
     });
-    setSyllabusItems(module.syllabus);
   };
 
-  // Submit the entire module with syllabus
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Prepare form data for file uploads
-    const formData = new FormData();
-
-    // Append module data
-    Object.entries(moduleData).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
-
-    // Append syllabus items
-    syllabusItems.forEach((item, index) => {
-      formData.append(`syllabus[${index}][week]`, item.week);
-      formData.append(`syllabus[${index}][description]`, item.description);
-      if (item.courseFile) {
-        formData.append(`syllabus[${index}][courseFile]`, item.courseFile);
-      }
-      if (item.tdFile) {
-        formData.append(`syllabus[${index}][tdFile]`, item.tdFile);
-      }
-    });
-
     try {
-      // Mock success response
       const newModule = {
         ...moduleData,
         id: editingModuleId || Date.now().toString(),
-        syllabus: syllabusItems,
       };
 
       if (editingModuleId) {
-        // Update existing module
         setModules(
           modules.map((m) => (m.id === editingModuleId ? newModule : m))
         );
       } else {
-        // Add new module
         setModules([...modules, newModule]);
       }
 
-      // Reset form
-      setModuleData({
-        title: "",
-        code: "",
-        instructor: "",
-        department: "",
-        credits: "",
-        description: "",
-        schedule: "",
-        location: "",
-      });
-      setSyllabusItems([
-        { week: "", description: "", courseFile: null, tdFile: null },
-      ]);
-      setEditingModuleId(null);
-
+      cancelEdit();
       alert(
         editingModuleId
           ? "Module updated successfully!"
@@ -182,7 +114,6 @@ const ModuleManagement = () => {
     }
   };
 
-  // Delete a module
   const deleteModule = (id) => {
     if (window.confirm("Are you sure you want to delete this module?")) {
       setModules(modules.filter((m) => m.id !== id));
@@ -191,12 +122,13 @@ const ModuleManagement = () => {
       }
     }
   };
+
+  console.log(moduleData);
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-8">Module Management</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Module Creation Form */}
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-2xl font-semibold mb-6 flex items-center">
             <FaBook className="mr-2 text-blue-500" /> Create New Module
@@ -298,7 +230,7 @@ const ModuleManagement = () => {
                 </label>
                 <textarea
                   name="description"
-                  className="border-2 w-full"
+                  className="border-2 w-full p-2 rounded-md"
                   value={moduleData.description}
                   onChange={handleModuleChange}
                   rows={4}
@@ -307,7 +239,6 @@ const ModuleManagement = () => {
               </div>
             </div>
 
-            {/* Syllabus Section */}
             <div className="mt-8">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-semibold flex items-center">
@@ -323,11 +254,11 @@ const ModuleManagement = () => {
               </div>
 
               <div className="space-y-4">
-                {syllabusItems.map((item, index) => (
+                {moduleData.syllabus.map((item, index) => (
                   <div key={index} className="border p-4 rounded-lg">
                     <div className="flex justify-between items-start mb-3">
                       <h4 className="font-medium">Week {index + 1}</h4>
-                      {syllabusItems.length > 1 && (
+                      {moduleData.syllabus.length > 1 && (
                         <Button
                           type="button"
                           variant="ghost"
@@ -358,15 +289,40 @@ const ModuleManagement = () => {
                         </label>
                         <textarea
                           name="description"
-                          className="border-2 w-full"
+                          className="border-2 w-full p-2 rounded-md"
                           value={item.description}
                           onChange={(e) => handleSyllabusChange(index, e)}
                           rows={2}
                           required
                         />
                       </div>
-
                       <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm font-medium mb-1">
+                            Course Materials URL
+                          </label>
+                          <Input
+                            type="text"
+                            name="courseFile"
+                            value={item.courseFile || ""}
+                            onChange={(e) => handleSyllabusChange(index, e)}
+                            placeholder="Enter materials URL"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-1">
+                            TD/TP Materials URL
+                          </label>
+                          <Input
+                            type="text"
+                            name="tdFile"
+                            value={item.tdFile || ""}
+                            onChange={(e) => handleSyllabusChange(index, e)}
+                            placeholder="Enter materials URL"
+                          />
+                        </div>
+                      </div>
+                      {/* <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="block text-sm font-medium mb-1">
                             Course Materials
@@ -391,22 +347,32 @@ const ModuleManagement = () => {
                             }
                           />
                         </div>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="mt-8">
-              <Button type="submit" className="w-full">
-                <FaSave className="mr-2" /> Save Module
+            <div className="mt-8 flex gap-4">
+              <Button type="submit" className="flex-1">
+                <FaSave className="mr-2" />{" "}
+                {editingModuleId ? "Update" : "Save"} Module
               </Button>
+              {editingModuleId && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={cancelEdit}
+                >
+                  Cancel Edit
+                </Button>
+              )}
             </div>
           </form>
         </div>
 
-        {/* Existing Modules List */}
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-2xl font-semibold mb-6 flex items-center">
             <FaChalkboardTeacher className="mr-2 text-purple-500" /> Existing

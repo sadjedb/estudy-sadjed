@@ -1,63 +1,124 @@
+"use client";
 import React from "react";
-import { FaLinkedin } from "react-icons/fa";
-import { FaFacebookSquare } from "react-icons/fa";
+import { FaLinkedin, FaFacebookSquare, FaGithub } from "react-icons/fa";
+import { motion } from "framer-motion";
+
 const Footer = () => {
+  const footerLinks = [
+    {
+      title: "About",
+      links: [
+        { label: "About Us", href: "#" },
+        { label: "Contact", href: "#" },
+      ],
+    },
+    {
+      title: "Resources",
+      links: [
+        { label: "Documentation", href: "#" },
+        { label: "Help Center", href: "#" },
+      ],
+    },
+    {
+      title: "Legal",
+      links: [
+        { label: "Privacy", href: "#" },
+        { label: "Terms", href: "#" },
+      ],
+    },
+  ];
+
+  const socialIcons = [
+    { icon: <FaLinkedin />, href: "#" },
+    { icon: <FaFacebookSquare />, href: "#" },
+    { icon: <FaGithub />, href: "#" },
+  ];
+
   return (
-    <footer className="px-4 py-8 text-sm text-gray-600 border-t-[1px] border-gray-200">
-      <div className="container mx-auto flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-        <div className="space-y-2">
-          <div className="font-semibold text-gray-800">About</div>
-          <div className="flex flex-col space-y-1">
-            <a href="#" className="hover:text-gray-900">
-              About Us
-            </a>
-            <a href="#" className="hover:text-gray-900">
-              Contact
-            </a>
-          </div>
+    <motion.footer
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      className="bg-gray-50 border-t border-gray-200"
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* Logo Section */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            className="space-y-4"
+          >
+            <h3 className="text-lg font-semibold text-gray-900">
+              Student Portal
+            </h3>
+            <p className="text-sm text-gray-600">
+              Empowering students through innovative education solutions.
+            </p>
+          </motion.div>
+
+          {/* Links Sections */}
+          {footerLinks.map((section, index) => (
+            <motion.div
+              key={section.title}
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="space-y-4"
+            >
+              <h4 className="text-sm font-semibold text-gray-900">
+                {section.title}
+              </h4>
+              <ul className="space-y-2">
+                {section.links.map((link) => (
+                  <li key={link.label}>
+                    <motion.a
+                      whileHover={{ x: 5 }}
+                      href={link.href}
+                      className="text-sm text-gray-600 hover:text-blue-600 transition-colors"
+                    >
+                      {link.label}
+                    </motion.a>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          ))}
+
+          {/* Social Links */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            className="space-y-4"
+          >
+            <h4 className="text-sm font-semibold text-gray-900">Connect</h4>
+            <div className="flex space-x-4">
+              {socialIcons.map((social, index) => (
+                <motion.a
+                  key={index}
+                  href={social.href}
+                  whileHover={{ y: -3 }}
+                  className="p-2 text-gray-600 hover:text-blue-600 transition-colors"
+                >
+                  {social.icon}
+                </motion.a>
+              ))}
+            </div>
+          </motion.div>
         </div>
 
-        <div className="space-y-2">
-          <div className="font-semibold text-gray-800">Resources</div>
-          <div className="flex flex-col space-y-1">
-            <a href="#" className="hover:text-gray-900">
-              Documentation
-            </a>
-            <a href="#" className="hover:text-gray-900">
-              Help Center
-            </a>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <div className="font-semibold text-gray-800">Legal</div>
-          <div className="flex flex-col space-y-1">
-            <a href="#" className="hover:text-gray-900">
-              Privacy
-            </a>
-            <a href="#" className="hover:text-gray-900">
-              Terms
-            </a>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <div className="font-semibold text-gray-800">Connect</div>
-          <div className="flex space-x-4">
-            <a href="#" className="hover:text-gray-900">
-              <FaLinkedin size={30} />
-            </a>
-            <a href="#" className="hover:text-gray-900">
-              <FaFacebookSquare size={30} />
-            </a>
-          </div>
-        </div>
+        {/* Copyright */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          className="mt-12 pt-8 border-t border-gray-200 text-center"
+        >
+          <p className="text-xs text-gray-600">
+            © 2024 Student Portal. All rights reserved.
+          </p>
+        </motion.div>
       </div>
-
-      <div className="text-center mt-8 text-xs">
-        © 2024 Student Portal. All rights reserved.
-      </div>
-    </footer>
+    </motion.footer>
   );
 };
 

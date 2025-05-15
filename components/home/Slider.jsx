@@ -1,18 +1,14 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { BsChevronCompactLeft, BsChevronCompactRight } from "react-icons/bs";
-import { RxDotFilled } from "react-icons/rx";
-// import { Playfair } from "next/font/google";
-// import { Roboto } from "next/font/google";
-// const playfair = Playfair({
-//   subsets: ["latin"],
-//   weight: ["400", "700"],
-// });
-// import s1 from "../../assets/slider1.jpg";
-// const roboto = Roboto({
-//   subsets: ["latin"],
-//   weight: ["400", "700"],
-// });
+import React from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Navigation, Pagination } from "swiper/modules";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
+
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+
 const Slider = () => {
   const slides = [
     {
@@ -32,89 +28,87 @@ const Slider = () => {
     },
   ];
 
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [textVisible, setTextVisible] = useState(true);
-
-  const changeSlide = (newIndex) => {
-    if (newIndex === currentIndex) return;
-
-    setTextVisible(false);
-    setTimeout(() => {
-      setCurrentIndex(newIndex);
-      setTimeout(() => setTextVisible(true), 200);
-    }, 300);
-  };
-
-  const prevSlide = () => {
-    const isFirstSlide = currentIndex === 0;
-    const newIndex = isFirstSlide ? slides.length - 1 : currentIndex - 1;
-    changeSlide(newIndex);
-  };
-
-  const nextSlide = () => {
-    const isLastSlide = currentIndex === slides.length - 1;
-    const newIndex = isLastSlide ? 0 : currentIndex + 1;
-    changeSlide(newIndex);
-  };
-
-  const goToSlide = (index) => {
-    changeSlide(index);
-  };
-
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      nextSlide();
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [currentIndex]);
-
   return (
-    <div className=" h-[700px] w-full m-auto  relative group">
-      <div
-        style={{ backgroundImage: `url(${slides[currentIndex].url})` }}
-        className="w-full h-full bg-center bg-cover duration-500 ease-in-out "
+    <div className="relative h-[700px] w-full bg-black">
+      <Swiper
+        modules={[Autoplay, Navigation, Pagination]}
+        autoplay={{ delay: 5000, disableOnInteraction: false }}
+        navigation={{
+          nextEl: ".swiper-button-next",
+          prevEl: ".swiper-button-prev",
+        }}
+        pagination={{ clickable: true }}
+        loop={true}
+        speed={1000}
+        preloadImages={true}
+        className="h-full w-full"
       >
-        <div className="w-full h-full justify-center items-center text-center flex flex-col bg-black/20  rounded-2xl">
-          <h1
-            // ${playfair.className} 
-            className={`
-              transition-opacity duration-1000 ease-in-out text-[50px] md:text-[80px]  text-white mb-4 ${textVisible ? "opacity-100" : "opacity-0"
-              }`}
-          >
-            {slides[currentIndex].title}
-          </h1>
-          <h2
-            //${roboto.className }
-            className={` transition-opacity duration-1000 ease-in-out text-[20px] md:text-[30px] text-white ${textVisible ? "opacity-100" : "opacity-0"
-              }`}
-          >
-            {slides[currentIndex].text}
-          </h2>
-        </div>
-      </div>
-      <div className="hidden md:block group-hover:block duration-300 absolute top-1/2 left-5 transform -translate-y-1/2 -translate-x-0 rounded-full p-2 bg-black/20 text-white cursor-pointer">
-        <BsChevronCompactLeft onClick={prevSlide} size={30} />
-      </div>
-      <div className="hidden md:block group-hover:block duration-300 absolute top-1/2 right-5 transform -translate-y-1/2 -translate-x-0 rounded-full p-2 bg-black/20 text-white cursor-pointer">
-        <BsChevronCompactRight onClick={nextSlide} size={30} />
-      </div>
-      <div className="absolute bottom-4 left-0 right-0 flex justify-center">
-        {slides.map((slide, slideIndex) => (
-          <div
-            className="text-2xl cursor-pointer mx-1"
-            key={slideIndex}
-            onClick={() => goToSlide(slideIndex)}
-          >
-            <RxDotFilled
-              size={20}
-              className={
-                slideIndex === currentIndex ? "text-black" : "text-white"
-              }
-            />
-          </div>
+        {slides.map((slide, index) => (
+          <SwiperSlide key={index}>
+            <div className="relative h-full w-full bg-black">
+              <Image
+                src={slide.url}
+                alt={slide.title}
+                fill
+                className="object-cover object-center"
+                priority={index < 2}
+                sizes="100vw"
+                quality={80}
+                placeholder="blur"
+                blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+              />
+              <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-center p-4">
+                <AnimatePresence mode="wait">
+                  <motion.h1
+                    key={`title-${index}`}
+                    initial={{ opacity: 0, y: 40 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    className="text-4xl md:text-6xl lg:text-7xl text-white mb-4 md:mb-6 font-playfair"
+                  >
+                    {slide.title}
+                  </motion.h1>
+                </AnimatePresence>
+
+                <AnimatePresence mode="wait">
+                  <motion.p
+                    key={`text-${index}`}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+                    className="text-lg md:text-xl lg:text-2xl text-white max-w-2xl mx-auto font-roboto"
+                  >
+                    {slide.text}
+                  </motion.p>
+                </AnimatePresence>
+              </div>
+            </div>
+          </SwiperSlide>
         ))}
-      </div>
+
+        <div className="swiper-button-prev !text-white !w-12 !h-12 after:!text-3xl hover:!opacity-80 transition-opacity" />
+        <div className="swiper-button-next !text-white !w-12 !h-12 after:!text-3xl hover:!opacity-80 transition-opacity" />
+      </Swiper>
+
+      <style jsx global>{`
+        .swiper-wrapper {
+          transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .swiper-pagination-bullet {
+          background: #fff !important;
+          opacity: 0.8 !important;
+          width: 12px !important;
+          height: 12px !important;
+          transition: all 0.3s ease !important;
+        }
+
+        .swiper-pagination-bullet-active {
+          background: #000 !important;
+          opacity: 1 !important;
+          transform: scale(1.2) !important;
+        }
+      `}</style>
     </div>
   );
 };

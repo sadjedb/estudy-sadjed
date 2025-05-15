@@ -1,5 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "swiper/css";
+@import "swiper/css/navigation";
+@import "swiper/css/pagination";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -109,7 +112,11 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 }
-
+.swiper-button-prev::after,
+.swiper-button-next::after {
+  font-size: 2rem;
+  font-weight: bold;
+}
 @layer base {
   * {
     @apply border-border outline-ring/50;
