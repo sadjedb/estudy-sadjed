@@ -107,7 +107,6 @@ const AdminDashboard = () => {
     supervisor: "",
   });
 
-  // Common Handlers
   const exitEditMode = () => setEditMode({ type: null, id: null });
 
   const enterEditMode = (type, item) => {
@@ -150,13 +149,16 @@ const AdminDashboard = () => {
   const { loading: loadingStudents, data: studentsData, addStudent } = useStudent()
   console.log("Students Data:", studentsData);
 
-  console.log("Projects Data:", projectsData);
   useEffect(() => {
-
     if (projectsData) {
       setProjects(projectsData.projects)
     }
   }, [projectsData])
+  useEffect(() => {
+    if (studentsData) {
+      setStudents(studentsData.students)
+    }
+  }, [studentsData])
 
   // Project Handlers
   const handleAddProject = async (e) => {
@@ -178,13 +180,14 @@ const AdminDashboard = () => {
   };
 
   // Student Handlers
-  const handleAddStudent = async (e) => {
-    e.preventDefault();
-    await addStudent(newStudent);
-    const student = { ...newStudent, id: students.length + 1 };
-    setStudents([...students, student]);
-    setNewStudent({ name: "", email: "", department: "cs", wishlist: [] });
-    setShowAddForm(false);
+  const handleAddStudent = async (student) => {
+    console.log("here", student)
+    await addStudent(student);
+
+    // const student = { ...newStudent, id: students.length + 1 };
+    // setStudents([...students, student]);
+    // setNewStudent({ name: "", email: "", department: "cs", wishlist: [] });
+    // setShowAddForm(false);
   };
 
   const addProjectToWishlist = () => {

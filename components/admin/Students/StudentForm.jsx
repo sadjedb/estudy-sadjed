@@ -8,7 +8,8 @@ const StudentForm = ({
   handleAddStudent,
   initialStudent = {
     id: null,
-    name: "",
+    first_name: "",
+    last_name: "",
     email: "",
     password: "",
     department: "cs",
@@ -36,7 +37,8 @@ const StudentForm = ({
   const validateForm = () => {
     const errors = {};
 
-    if (!formData.name.trim()) errors.name = "Name is required";
+    if (!formData.first_name.trim()) errors.first_name = "First Name is required";
+    if (!formData.last_name.trim()) errors.last_name = "Last Name is required";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       errors.email = "Valid email is required";
     }
@@ -50,6 +52,7 @@ const StudentForm = ({
     }
 
     setFormErrors(errors);
+    console.log("Form errors:", errors);
     return Object.keys(errors).length === 0;
   };
 
@@ -61,21 +64,35 @@ const StudentForm = ({
       setFormErrors((prev) => ({ ...prev, [name]: null }));
     }
   };
-
   const handleDepartmentChange = (e) => {
     const department = e.target.value;
     setFormData((prev) => ({
       ...prev,
       department,
-      wishlist: prev.department === department ? prev.wishlist : [],
     }));
   };
+
+  const handleWishlistChange = (e) => {
+    const { value } = e.target;
+    if (formData.wishlist.includes(value)) {
+      setFormData((prev) => ({
+        ...prev,
+        wishlist: prev.wishlist.filter((item) => item !== value),
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        wishlist: [...prev.wishlist, value]
+      }));
+    }
+  }
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault()
     setIsSubmitting(true);
 
     if (!validateForm()) {
@@ -86,18 +103,7 @@ const StudentForm = ({
     try {
       const studentData = {
         ...formData,
-        password:
-          initialStudent.id && !formData.password
-            ? undefined
-            : formData.password,
-        wishlist: formData.wishlist
-          .map((title) => {
-            const project = projects.find((p) => p.title === title);
-            return project ? project.id : null;
-          })
-          .filter((id) => id !== null),
       };
-      console.log(studentData);
       await handleAddStudent(studentData);
 
       setShowAddForm(false);
@@ -121,21 +127,38 @@ const StudentForm = ({
         <div className="grid md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Name *
+              First Name *
             </label>
             <input
               type="text"
-              name="name"
-              className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                formErrors.name ? "border-red-500" : "border-gray-300"
-              }`}
-              value={formData.name}
+              name="first_name"
+              className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent ${formErrors.first_name ? "border-red-500" : "border-gray-300"
+                }`}
+              value={formData.first_name}
               onChange={handleChange}
               minLength={3}
               maxLength={50}
             />
-            {formErrors.name && (
-              <p className="mt-1 text-sm text-red-600">{formErrors.name}</p>
+            {formErrors.first_name && (
+              <p className="mt-1 text-sm text-red-600">{formErrors.first_name}</p>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Last Name *
+            </label>
+            <input
+              type="text"
+              name="last_name"
+              className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent ${formErrors.last_name ? "border-red-500" : "border-gray-300"
+                }`}
+              value={formData.last_name}
+              onChange={handleChange}
+              minLength={3}
+              maxLength={50}
+            />
+            {formErrors.last_name && (
+              <p className="mt-1 text-sm text-red-600">{formErrors.last_name}</p>
             )}
           </div>
 
@@ -146,9 +169,8 @@ const StudentForm = ({
             <input
               type="email"
               name="email"
-              className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                formErrors.email ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent ${formErrors.email ? "border-red-500" : "border-gray-300"
+                }`}
               value={formData.email}
               onChange={handleChange}
             />
@@ -167,9 +189,8 @@ const StudentForm = ({
               <input
                 type={showPassword ? "text" : "password"}
                 name="password"
-                className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  formErrors.password ? "border-red-500" : "border-gray-300"
-                }`}
+                className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent ${formErrors.password ? "border-red-500" : "border-gray-300"
+                  }`}
                 value={formData.password || ""}
                 onChange={handleChange}
                 minLength={6}
@@ -195,7 +216,22 @@ const StudentForm = ({
               </p>
             )}
           </div>
-
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Wishlist *
+            </label>
+            <select
+              name="department"
+              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              value={formData.wishlist}
+              onChange={handleWishlistChange}
+            >
+              <option value="sui">Computer Science</option>
+              <option value="math">Mathematics</option>
+              <option value="physics">Physics</option>
+              <option value="chemistry">Chemistry</option>
+            </select>
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Department *
@@ -217,17 +253,16 @@ const StudentForm = ({
         <div className="flex space-x-3 pt-2">
           <button
             type="submit"
-            className={`px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center transition-colors duration-200 ${
-              isSubmitting ? "opacity-75 cursor-not-allowed" : ""
-            }`}
+            className={`px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center transition-colors duration-200 ${isSubmitting ? "opacity-75 cursor-not-allowed" : ""
+              }`}
             disabled={isSubmitting}
           >
             <FiSave className="inline mr-2" />
             {isSubmitting
               ? "Processing..."
               : initialStudent.id
-              ? "Update Student"
-              : "Add Student"}
+                ? "Update Student"
+                : "Add Student"}
           </button>
           <button
             type="button"

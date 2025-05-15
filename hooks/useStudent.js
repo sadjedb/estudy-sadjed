@@ -27,7 +27,19 @@ const useStudent = () => {
 
                 setStatusCode(response.status);
                 const result = await response.json();
-                setData(result);
+                const parsedResult = Array.isArray(result.students)
+                    ? {
+                        ...result,
+                        students: result.students.map(student => ({
+                            ...student,
+                            // Parse any stringified arrays in student object
+                            wishlist: typeof student.wishlist === 'string'
+                                ? JSON.parse(student.wishlist)
+                                : student.wishlist
+                        }))
+                    }
+                    : result;
+                setData(parsedResult);
             } catch (error) {
                 console.error('Error fetching data:', error);
             } finally {
@@ -50,7 +62,7 @@ const useStudent = () => {
             });
             setStatusCode(response.status);
             const result = await response.json();
-            setData((prevData) => [...(prevData || []), result]);
+            setData((prevData) => ({ ...prevData, students: [...prevData.students, { ...student, id: result.studentId }] }));
         } catch (error) {
             console.error('Error adding student:', error);
         } finally {

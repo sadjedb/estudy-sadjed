@@ -50,7 +50,7 @@ const useProject = () => {
             });
             setStatusCode(response.status);
             const result = await response.json();
-            setData((prevData) => [...(prevData || []), result]);
+            setData((prevData) => ({ ...prevData, projects: [...prevData.projects, { ...project, id: result.projectId }] }));
         } catch (error) {
             console.error('Error adding project:', error);
         } finally {

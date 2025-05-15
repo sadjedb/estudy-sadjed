@@ -2,17 +2,17 @@
 import React, { useState, useEffect } from "react";
 import { BsChevronCompactLeft, BsChevronCompactRight } from "react-icons/bs";
 import { RxDotFilled } from "react-icons/rx";
-import { Playfair } from "next/font/google";
-import { Roboto } from "next/font/google";
-const playfair = Playfair({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-});
+// import { Playfair } from "next/font/google";
+// import { Roboto } from "next/font/google";
+// const playfair = Playfair({
+//   subsets: ["latin"],
+//   weight: ["400", "700"],
+// });
 import s1 from "../../assets/slider1.jpg";
-const roboto = Roboto({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-});
+// const roboto = Roboto({
+//   subsets: ["latin"],
+//   weight: ["400", "700"],
+// });
 const Slider = () => {
   const slides = [
     {
@@ -77,20 +77,17 @@ const Slider = () => {
       >
         <div className="w-full h-full justify-center items-center text-center flex flex-col bg-black/20  rounded-2xl">
           <h1
-            className={`${
-              playfair.className
-            } transition-opacity duration-1000 ease-in-out text-[50px] md:text-[80px]  text-white mb-4 ${
-              textVisible ? "opacity-100" : "opacity-0"
-            }`}
+            // ${playfair.className} 
+            className={`
+              transition-opacity duration-1000 ease-in-out text-[50px] md:text-[80px]  text-white mb-4 ${textVisible ? "opacity-100" : "opacity-0"
+              }`}
           >
             {slides[currentIndex].title}
           </h1>
           <h2
-            className={`${
-              roboto.className
-            } transition-opacity duration-1000 ease-in-out text-[20px] md:text-[30px] text-white ${
-              textVisible ? "opacity-100" : "opacity-0"
-            }`}
+            //${roboto.className }
+            className={` transition-opacity duration-1000 ease-in-out text-[20px] md:text-[30px] text-white ${textVisible ? "opacity-100" : "opacity-0"
+              }`}
           >
             {slides[currentIndex].text}
           </h2>
