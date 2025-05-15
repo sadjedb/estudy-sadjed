@@ -16,23 +16,21 @@ const StudentForm = ({
     wishlist: [],
   },
 }) => {
-  // Form state
-  const [formData, setFormData] = useState(initialStudent);
-  const [newWishlistItem, setNewWishlistItem] = useState("");
+  const [formData, setFormData] = useState({
+    ...initialStudent,
+    wishlist: [],
+  });
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    setFormData(initialStudent);
+    setFormData({
+      ...initialStudent,
+      wishlist: initialStudent.id ? initialStudent.wishlist : [],
+    });
     setFormErrors({});
   }, [initialStudent.id]);
-
-  const availableProjects = projects.filter(
-    (project) =>
-      !formData.wishlist.includes(project.title) &&
-      project.department === formData.department
-  );
 
   const validateForm = () => {
     const errors = {};
@@ -46,9 +44,6 @@ const StudentForm = ({
       errors.password = "Password is required";
     } else if (formData.password && formData.password.length < 6) {
       errors.password = "Password must be at least 6 characters";
-    }
-    if (formData.wishlist.length === 0) {
-      errors.wishlist = "At least one project is required";
     }
 
     setFormErrors(errors);
@@ -104,8 +99,8 @@ const StudentForm = ({
       const studentData = {
         ...formData,
       };
-      await handleAddStudent(studentData);
 
+      await handleAddStudent(studentData);
       setShowAddForm(false);
     } catch (error) {
       console.error("Submission error:", error);
@@ -158,10 +153,14 @@ const StudentForm = ({
               maxLength={50}
             />
             {formErrors.last_name && (
-              <p className="mt-1 text-sm text-red-600">{formErrors.last_name}</p>
+              <p className="mt-1 text-sm text-red-600">
+                {formErrors.last_name}
+              </p>
             )}
           </div>
+        </div>
 
+        <div className="grid md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Email *
@@ -178,9 +177,7 @@ const StudentForm = ({
               <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>
             )}
           </div>
-        </div>
 
-        <div className="grid md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               {initialStudent.id ? "New Password" : "Password *"}

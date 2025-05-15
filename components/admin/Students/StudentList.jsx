@@ -1,7 +1,7 @@
-import { FiSearch, FiPlus } from "react-icons/fi";
+import { FiSearch } from "react-icons/fi";
 import StudentTableRow from "./StudentTableRow";
 
-const StudentList = ({ students, projects, setShowAddForm }) => {
+const StudentList = ({ students, projects, loading }) => {
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-xl shadow-sm p-6">
@@ -17,7 +17,11 @@ const StudentList = ({ students, projects, setShowAddForm }) => {
           </div>
         </div>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
+          {loading ? (
+            <div className="flex justify-center items-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+          ) : (<table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -46,7 +50,7 @@ const StudentList = ({ students, projects, setShowAddForm }) => {
                 />
               ))}
             </tbody>
-          </table>
+          </table>)}
         </div>
       </div>
     </div>

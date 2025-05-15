@@ -72,23 +72,6 @@ const AdminDashboard = () => {
     supervisor: "",
   });
 
-  const [students, setStudents] = useState([
-    {
-      id: 1,
-      name: "Mohamed Ali",
-      email: "m.ali@univ.edu",
-      department: "cs",
-      wishlist: ["AI-Powered Learning System", "Blockchain Voting System"],
-    },
-    {
-      id: 2,
-      name: "Fatima Mahmoud",
-      email: "f.mahmoud@univ.edu",
-      department: "math",
-      wishlist: ["Statistical Modeling"],
-    },
-  ]);
-
   const [newStudent, setNewStudent] = useState({
     name: "",
     email: "",
@@ -125,7 +108,6 @@ const AdminDashboard = () => {
     exitEditMode();
   };
 
-  // Announcement Handlers
   const handleAddAnnouncement = (e) => {
     e.preventDefault();
     const announcement = {
@@ -151,16 +133,15 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (projectsData) {
-      setProjects(projectsData.projects)
+      setProjects(projectsData.projects);
     }
   }, [projectsData])
-  useEffect(() => {
-    if (studentsData) {
-      setStudents(studentsData.students)
-    }
-  }, [studentsData])
+  // useEffect(() => {
+  //   if (studentsData) {
+  //     setStudents(studentsData.students)
+  //   }
+  // }, [studentsData])
 
-  // Project Handlers
   const handleAddProject = async (e) => {
     e.preventDefault();
     const project = { ...newProject };
@@ -198,12 +179,6 @@ const AdminDashboard = () => {
       });
       setNewWishlistItem("");
     }
-  };
-
-  const removeProjectFromWishlist = (index) => {
-    const updatedWishlist = [...newStudent.wishlist];
-    updatedWishlist.splice(index, 1);
-    setNewStudent({ ...newStudent, wishlist: updatedWishlist });
   };
 
   const renderActiveTab = () => {
@@ -253,29 +228,47 @@ const AdminDashboard = () => {
         );
 
       case "students":
-        return showAddForm ? (
-          <StudentForm
-            newStudent={newStudent}
-            setNewStudent={setNewStudent}
-            newWishlistItem={newWishlistItem}
-            setNewWishlistItem={setNewWishlistItem}
-            addProjectToWishlist={addProjectToWishlist}
-            removeProjectFromWishlist={removeProjectFromWishlist}
-            handleAddStudent={handleAddStudent}
-            setShowAddForm={setShowAddForm}
-            projects={projects}
-          />
-        ) : (
-          <>
-            <button
-              onClick={() => setShowAddForm(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center mb-4"
-            >
-              <FiPlus className="inline mr-2" />
-              Add Student
-            </button>
-            <StudentList students={students} projects={projects} />
-          </>
+        return (
+          <div className="min-h-screen bg-gray-50 p-6">
+            <div className="max-w-7xl mx-auto">
+              {loadingStudents ? (
+                <div className="flex justify-center items-center h-screen">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                </div>
+              ) : (
+                <>
+                  <div className="mb-8">
+                    <h1 className="text-3xl font-bold text-gray-800">
+                      Admin Dashboard
+                    </h1>
+                  </div>
+
+                  {showAddForm ? (
+                    <StudentForm
+                      projects={[]}
+                      setShowAddForm={setShowAddForm}
+                      handleAddStudent={handleAddStudent}
+                    />
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => setShowAddForm(true)}
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center mb-4"
+                      >
+                        <FiPlus className="inline mr-2" />
+                        Add Student
+                      </button>
+                      <StudentList
+                        students={studentsData?.students || []}
+                        projects={[]}
+                        loading={loadingStudents}
+                      />
+                    </>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
         );
 
       case "courses":

@@ -8,7 +8,7 @@ import { RxDotFilled } from "react-icons/rx";
 //   subsets: ["latin"],
 //   weight: ["400", "700"],
 // });
-import s1 from "../../assets/slider1.jpg";
+// import s1 from "../../assets/slider1.jpg";
 // const roboto = Roboto({
 //   subsets: ["latin"],
 //   weight: ["400", "700"],
