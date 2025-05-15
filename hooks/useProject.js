@@ -50,7 +50,15 @@ const useProject = () => {
       });
       setStatusCode(response.status);
       const result = await response.json();
-      setData((prevData) => ({ ...prevData, projects: [...prevData.projects, { ...project, id: result.projectId }] }));
+
+      setData((prevData) => ({
+        ...prevData,
+        projects: [
+          ...(prevData.projects || [])
+            .filter((p) => p.id !== result.projectId),
+          { ...project, id: result.projectId }
+        ]
+      }));
     } catch (error) {
       console.error('Error adding project:', error);
     } finally {
@@ -61,17 +69,19 @@ const useProject = () => {
   const removeProject = async (projectId) => {
     setLoading(true);
     try {
-      const response = await fetch(`${url}/${projectId}`, {
+      const response = await fetch(url, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({ projectId }),
       });
       setStatusCode(response.status);
       if (response.ok) {
-        setData((prevData) =>
-          (prevData || []).filter((item) => item.id !== projectId)
-        );
+        setData((prevData) => ({
+          ...prevData,
+          projects: (prevData.projects || []).filter((item) => item.id !== projectId)
+        }));
       }
     } catch (error) {
       console.error("Error removing project:", error);

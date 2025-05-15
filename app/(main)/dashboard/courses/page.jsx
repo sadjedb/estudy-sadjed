@@ -19,6 +19,7 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
+import withAuth from "@/lib/utils/withAuth";
 
 const LoadingSkeleton = () => (
   <div className="container mx-auto p-6 space-y-8">
@@ -363,4 +364,4 @@ const ModuleDetailPage = ({ params }) => {
   );
 };
 
-export default ModuleDetailPage;
+export default withAuth(ModuleDetailPage, ['student']);

@@ -18,7 +18,7 @@ const ProjectForm = ({
         title: "",
         description: "",
         department: "cs",
-        spots: 1,
+        available_spots: 1,
         supervisor: "",
       });
     }
@@ -113,12 +113,12 @@ const ProjectForm = ({
             </label>
             <input
               type="number"
-              name="spots"
+              name="available_spots"
               min="1"
               max="20"
               className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               value={
-                editMode.type === "project" ? editForm.spots : newProject.spots
+                editMode.type === "project" ? editForm.available_spots : newProject.available_spots
               }
               onChange={handleChange}
               required

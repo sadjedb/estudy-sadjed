@@ -12,6 +12,7 @@ import ModuleManagement from "./Courses/ModuleManagement";
 import useApi from "@/hooks/useApi";
 import useProject from "@/hooks/useProject";
 import useStudent from "@/hooks/useStudent";
+import useAnnouncements from "@/hooks/useAnnouncements";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("announcements");
@@ -19,24 +20,7 @@ const AdminDashboard = () => {
   const [showAddForm, setShowAddForm] = useState(false);
 
   // Announcements State
-  const [announcements, setAnnouncements] = useState([
-    {
-      id: 1,
-      title: "Final Project Submission Deadline",
-      content: "All final projects must be submitted by June 15th.",
-      department: "all",
-      date: "2024-05-20",
-      urgent: false,
-    },
-    {
-      id: 2,
-      title: "Computer Science Lab Maintenance",
-      content: "The CS lab will be closed on May 25th for upgrades.",
-      department: "cs",
-      date: "2024-05-15",
-      urgent: true,
-    },
-  ]);
+  const [announcements, setAnnouncements] = useState([]);
 
   const [newAnnouncement, setNewAnnouncement] = useState({
     title: "",
@@ -89,6 +73,9 @@ const AdminDashboard = () => {
     spots: 1,
     supervisor: "",
   });
+  const { loading, data: projectsData, addProject, removeProject } = useProject();
+  const { loading: loadingStudents, data: studentsData, addStudent } = useStudent()
+  const { loading: loadingAnnouncements, data: announcementsData, addAnnouncement, removeAnnouncement } = useAnnouncements()
 
   const exitEditMode = () => setEditMode({ type: null, id: null });
 
@@ -97,19 +84,26 @@ const AdminDashboard = () => {
     setEditForm(item);
   };
 
-  const saveEdit = () => {
+  const saveEdit = async (e) => {
     if (editMode.type === "announcement") {
-      setAnnouncements(
-        announcements.map((a) => (a.id === editMode.id ? editForm : a))
-      );
+      e.preventDefault();
+      const announcement = editForm;
+      await addAnnouncement(announcement);
+
+      // setAnnouncements(
+      //   announcements.map((a) => (a.id === editMode.id ? editForm : a))
+      // );
     } else if (editMode.type === "project") {
-      setProjects(projects.map((p) => (p.id === editMode.id ? editForm : p)));
+      e.preventDefault();
+      const project = editForm;
+      await addProject(project);
     }
     exitEditMode();
   };
 
-  const handleAddAnnouncement = (e) => {
+  const handleAddAnnouncement = async (e) => {
     e.preventDefault();
+    await addAnnouncement(newAnnouncement);
     const announcement = {
       ...newAnnouncement,
       id: announcements.length + 1,
@@ -124,23 +118,17 @@ const AdminDashboard = () => {
     });
   };
 
-  const deleteAnnouncement = (id) => {
-    setAnnouncements(announcements.filter((a) => a.id !== id));
+  const deleteAnnouncement = async (id) => {
+    // setAnnouncements(announcements.filter((a) => a.id !== id));
+    await removeAnnouncement(id);
   };
-  const { loading, data: projectsData, addProject } = useProject();
-  const { loading: loadingStudents, data: studentsData, addStudent } = useStudent()
-  console.log("Students Data:", studentsData);
 
   useEffect(() => {
     if (projectsData) {
       setProjects(projectsData.projects);
     }
   }, [projectsData])
-  // useEffect(() => {
-  //   if (studentsData) {
-  //     setStudents(studentsData.students)
-  //   }
-  // }, [studentsData])
+
 
   const handleAddProject = async (e) => {
     e.preventDefault();
@@ -156,13 +144,13 @@ const AdminDashboard = () => {
     });
   };
 
-  const deleteProject = (id) => {
-    setProjects(projects.filter((p) => p.id !== id));
+  const deleteProject = async (id) => {
+    // setProjects(projects.filter((p) => p.id !== id));
+    await removeProject(id);
   };
 
   // Student Handlers
   const handleAddStudent = async (student) => {
-    console.log("here", student)
     await addStudent(student);
 
     // const student = { ...newStudent, id: students.length + 1 };
@@ -197,7 +185,7 @@ const AdminDashboard = () => {
               handleAddAnnouncement={handleAddAnnouncement}
             />
             <AnnouncementList
-              announcements={announcements}
+              announcements={announcementsData?.announcments || []}
               editMode={editMode}
               enterEditMode={enterEditMode}
               deleteAnnouncement={deleteAnnouncement}

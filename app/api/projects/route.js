@@ -25,7 +25,6 @@ export async function GET(request) {
 
 export async function POST(request) {
     const body = await request.json();
-    console.log("Received body:", body);
     try {
         const projectId = await projectService.addOrUpdateProject(body);
         return new Response(JSON.stringify({ message: "Project added", projectId, status: 201 }));
