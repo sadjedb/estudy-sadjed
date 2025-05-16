@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,6 +11,7 @@ import {
   FaChalkboardTeacher,
   FaEdit,
 } from "react-icons/fa";
+import useModule from "@/hooks/useModule";
 
 const ModuleManagement = () => {
   const [modules, setModules] = useState([]);
@@ -27,6 +28,8 @@ const ModuleManagement = () => {
     location: "",
     syllabus: [{ week: "", description: "", courseFile: null, tdFile: null }],
   });
+
+  const { data, loading, error, addModule, removeModule } = useModule()
 
   const handleModuleChange = (e) => {
     const { name, value } = e.target;
@@ -85,10 +88,13 @@ const ModuleManagement = () => {
     });
   };
 
+  useEffect(() => { if (data) { setModules(data.modules) } }, [data])
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
+      await addModule(moduleData)
       const newModule = {
         ...moduleData,
         id: editingModuleId || Date.now().toString(),
@@ -114,8 +120,9 @@ const ModuleManagement = () => {
     }
   };
 
-  const deleteModule = (id) => {
+  const deleteModule = async (id) => {
     if (window.confirm("Are you sure you want to delete this module?")) {
+      await removeModule(id);
       setModules(modules.filter((m) => m.id !== id));
       if (editingModuleId === id) {
         cancelEdit();
@@ -123,7 +130,6 @@ const ModuleManagement = () => {
     }
   };
 
-  console.log(moduleData);
   return (
     <div className="container mx-auto p-6">
       <h1 className="text-3xl font-bold mb-8">Module Management</h1>
@@ -386,9 +392,8 @@ const ModuleManagement = () => {
               {modules.map((module) => (
                 <div
                   key={module.id}
-                  className={`border p-4 rounded-lg hover:bg-gray-50 ${
-                    editingModuleId === module.id ? "bg-blue-50" : ""
-                  }`}
+                  className={`border p-4 rounded-lg hover:bg-gray-50 ${editingModuleId === module.id ? "bg-blue-50" : ""
+                    }`}
                 >
                   <h3 className="font-bold text-lg">{module.title}</h3>
                   <p className="text-sm text-gray-600">

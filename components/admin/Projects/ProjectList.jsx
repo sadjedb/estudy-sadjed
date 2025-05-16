@@ -2,7 +2,6 @@ import { FiSearch } from "react-icons/fi";
 import ProjectTableRow from "./ProjectTableRow";
 
 const ProjectList = ({ projects, editMode, enterEditMode, deleteProject }) => {
-  console.log(projects);
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
       <div className="flex justify-between items-center mb-4">

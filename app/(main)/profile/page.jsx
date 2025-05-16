@@ -1,10 +1,13 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Calendar } from "lucide-react";
 import Link from "next/link";
 import { FaUser, FaTasks, FaRegBookmark } from "react-icons/fa";
+import useWhishlist from "@/hooks/useWhishlist";
+import { useSession } from "next-auth/react";
 
 const Page = () => {
+  const session = useSession();
   const [student, setStudent] = useState({
     name: "Gamar Benchkiberdo",
     major: "Software Engineering",
@@ -14,32 +17,23 @@ const Page = () => {
       email: "gamar@example.com",
       phone: "+1234567890",
     },
-    projects: [
-      {
-        id: 1,
-        title: "Blockchain Voting System",
-        department: "Computer Science",
-        status: "In Progress",
-        student: " Ahmed Hassan",
-        supervisor: "Prof. Michael Chen",
-        description:
-          "Developing an intelligent task manager with NLP-based natural language input",
-        date: "15 May 2025",
-      },
-      {
-        id: 2,
-        title: "AI-Powered Learning Platform",
-        department: "Computer Science",
-        status: "In Progress",
-        student: " Ahmed Mohamed Ali",
-        supervisor: "Dr. Sarah Johnson",
-        description:
-          "Developed an AI system to personalize learning experiences for students using machine learning",
-        date: "01 May 2025",
-      },
-    ],
+    //     id: 1,
+    //     title: "Blockchain Voting System",
+    //     department: "Computer Science",
+    //     status: "In Progress",
+    //     student: " Ahmed Hassan",
+    //     supervisor: "Prof. Michael Chen",
+    //     description:
+    //       "Developing an intelligent task manager with NLP-based natural language input",
+    //     date: "15 May 2025",
   });
-
+  const [projects, setProjects] = useState([]);
+  const { data: projectsData, loading: projectsLoading, removeFromWhishlist } = useWhishlist(session?.data?.user?.id);
+  useEffect(() => {
+    if (projectsData) {
+      setProjects(projectsData.wishlist);
+    }
+  }, [projectsData]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editBio, setEditBio] = useState("");
   const [editContactInfo, setEditContactInfo] = useState({
@@ -62,19 +56,18 @@ const Page = () => {
     setIsEditModalOpen(false);
   };
 
-  const removeProject = (projectId) => {
-    setStudent((prev) => ({
-      ...prev,
-      projects: prev.projects.filter((proj) => proj.id !== projectId),
-    }));
+  const removeProject = async (projectId) => {
+    await removeFromWhishlist(projectId);
+    // setProjects((prev) => ({
+    //   ...prev.projects.filter((proj) => proj.id !== projectId),
+    // }));
   };
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div
-        className={` ${
-          isEditModalOpen ? "max-w-6xl mx-auto opacity-10" : "max-w-6xl mx-auto"
-        } `}
+        className={` ${isEditModalOpen ? "max-w-6xl mx-auto opacity-10" : "max-w-6xl mx-auto"
+          } `}
       >
         <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
           <div className="flex items-center gap-6">
@@ -131,7 +124,7 @@ const Page = () => {
           </div>
 
           <div className="grid gap-4">
-            {student.projects.map((project) => (
+            {projects.map((project) => (
               <div
                 key={project.id}
                 className="border rounded-lg p-4 hover:bg-gray-50 transition-colors relative"
@@ -144,22 +137,18 @@ const Page = () => {
                         <span className="text-sm text-gray-600 flex items-center gap-1">
                           <FaTasks className="text-blue-600" />
                           {project.department}
-                          <span
-                            className={`px-2 py-1 rounded-full text-sm ${
-                              project.status === "Idea Stage"
-                                ? "bg-yellow-100 text-yellow-600"
-                                : project.status === "Planning"
+                          {/* <span
+                            className={`px-2 py-1 rounded-full text-sm ${project.status === "Idea Stage"
+                              ? "bg-yellow-100 text-yellow-600"
+                              : project.status === "Planning"
                                 ? "bg-blue-100 text-blue-600"
                                 : "bg-green-100 text-green-600"
-                            }`}
+                              }`}
                           >
                             {project.status}
-                          </span>
+                          </span> */}
                         </span>
-                        <span className="text-sm text-gray-600 flex items-center gap-1">
-                          <span className="font-medium">Student:</span>{" "}
-                          {project.student}
-                        </span>
+
                         <span className="text-sm text-gray-600 flex items-center gap-1">
                           <span className="font-medium">Supervisor:</span>{" "}
                           {project.supervisor}
@@ -168,12 +157,12 @@ const Page = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-gray-600">
-                    <div className="flex items-center gap-1">
+                    {/* <div className="flex items-center gap-1">
                       <Calendar className="text-green-600" />
                       <span className="font-bold"> {project.date} </span>
-                    </div>
+                    </div> */}
                     <button
-                      onClick={() => removeProject(project.id)}
+                      onClick={() => removeProject(project.project_id)}
                       className="ml-3 text-red-500 hover:text-red-700"
                       title="Remove project"
                     >

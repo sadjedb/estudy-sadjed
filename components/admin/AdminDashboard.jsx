@@ -13,6 +13,7 @@ import useApi from "@/hooks/useApi";
 import useProject from "@/hooks/useProject";
 import useStudent from "@/hooks/useStudent";
 import useAnnouncements from "@/hooks/useAnnouncements";
+import useWhishlist from "@/hooks/useWhishlist";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("announcements");
@@ -21,6 +22,7 @@ const AdminDashboard = () => {
 
   // Announcements State
   const [announcements, setAnnouncements] = useState([]);
+  const [projects, setProjects] = useState([]);
 
   const [newAnnouncement, setNewAnnouncement] = useState({
     title: "",
@@ -29,24 +31,6 @@ const AdminDashboard = () => {
     urgent: false,
   });
 
-  const [projects, setProjects] = useState([
-    {
-      id: 1,
-      title: "AI-Powered Learning System",
-      description: "Develop an AI system to personalize learning experiences.",
-      department: "cs",
-      spots: 5,
-      supervisor: "Dr. Smith",
-    },
-    {
-      id: 2,
-      title: "Blockchain Voting System",
-      description: "Create a secure voting system using blockchain.",
-      department: "cs",
-      spots: 3,
-      supervisor: "Prof. Johnson",
-    },
-  ]);
 
   const [newProject, setNewProject] = useState({
     title: "",
@@ -56,14 +40,7 @@ const AdminDashboard = () => {
     supervisor: "",
   });
 
-  const [newStudent, setNewStudent] = useState({
-    name: "",
-    email: "",
-    department: "cs",
-    wishlist: [],
-  });
 
-  const [newWishlistItem, setNewWishlistItem] = useState("");
   const [editForm, setEditForm] = useState({
     title: "",
     content: "",
@@ -159,15 +136,7 @@ const AdminDashboard = () => {
     // setShowAddForm(false);
   };
 
-  const addProjectToWishlist = () => {
-    if (newWishlistItem && !newStudent.wishlist.includes(newWishlistItem)) {
-      setNewStudent({
-        ...newStudent,
-        wishlist: [...newStudent.wishlist, newWishlistItem],
-      });
-      setNewWishlistItem("");
-    }
-  };
+
 
   const renderActiveTab = () => {
     switch (activeTab) {

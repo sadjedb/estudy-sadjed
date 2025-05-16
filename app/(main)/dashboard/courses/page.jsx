@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,79 +14,102 @@ import {
 } from "react-icons/fa";
 import Link from "next/link";
 import withAuth from "@/lib/utils/withAuth";
+import useModule from "@/hooks/useModule";
 const AllModulesPage = () => {
   const [layout, setLayout] = useState("grid");
+  const [allModules, setModules] = useState([]);
+  // const allModules = [
+  //   {
+  //     id: 1,
+  //     url: "courses/web-development",
+  //     title: "Advanced Web Development",
+  //     code: "CS401",
+  //     instructor: "Dr. Smith",
+  //     department: "Computer Science",
+  //     credits: 4,
+  //     icon: <FaLaptopCode className="text-blue-500" />,
+  //     description:
+  //       "Advanced concepts in modern web development frameworks and architectures.",
+  //   },
+  //   {
+  //     id: 2,
+  //     url: "courses/machine-learning",
+  //     title: "Machine Learning Fundamentals",
+  //     code: "CS402",
+  //     instructor: "Prof. Johnson",
+  //     department: "Computer Science",
+  //     credits: 4,
+  //     icon: <FaLaptopCode className="text-blue-500" />,
+  //     description:
+  //       "Introduction to machine learning algorithms and their applications.",
+  //   },
+  //   {
+  //     id: 3,
+  //     url: "courses/database-systems",
+  //     title: "Database Systems",
+  //     code: "CS403",
+  //     instructor: "Dr. Williams",
+  //     department: "Computer Science",
+  //     credits: 3,
+  //     icon: <FaLaptopCode className="text-blue-500" />,
+  //     description: "Design and implementation of database management systems.",
+  //   },
+  //   {
+  //     id: 4,
+  //     url: "courses/advanced-calculus",
+  //     title: "Advanced Calculus",
+  //     code: "MATH401",
+  //     instructor: "Dr. Brown",
+  //     department: "Mathematics",
+  //     credits: 4,
+  //     icon: <FaCalculator className="text-red-500" />,
+  //     description: "Advanced topics in differential and integral calculus.",
+  //   },
+  //   {
+  //     id: 5,
+  //     url: "courses/quantum-mechanics",
+  //     title: "Quantum Mechanics",
+  //     code: "PHY401",
+  //     instructor: "Dr. Davis",
+  //     department: "Physics",
+  //     credits: 4,
+  //     icon: <FaAtom className="text-yellow-500" />,
+  //     description: "Fundamental principles of quantum theory and applications.",
+  //   },
+  //   {
+  //     id: 6,
+  //     url: "courses/organic-chemistry",
+  //     title: "Organic Chemistry",
+  //     code: "CHEM401",
+  //     instructor: "Dr. Wilson",
+  //     department: "Chemistry",
+  //     credits: 4,
+  //     icon: <FaFlask className="text-teal-500" />,
+  //     description: "Structure, properties, and reactions of organic compounds.",
+  //   },
+  // ];
+  const { data: modulesData, loading: modulesLoading } = useModule()
 
-  const allModules = [
-    {
-      id: 1,
-      url: "courses/web-development",
-      title: "Advanced Web Development",
-      code: "CS401",
-      instructor: "Dr. Smith",
-      department: "Computer Science",
-      credits: 4,
-      icon: <FaLaptopCode className="text-blue-500" />,
-      description:
-        "Advanced concepts in modern web development frameworks and architectures.",
-    },
-    {
-      id: 2,
-      url: "courses/machine-learning",
-      title: "Machine Learning Fundamentals",
-      code: "CS402",
-      instructor: "Prof. Johnson",
-      department: "Computer Science",
-      credits: 4,
-      icon: <FaLaptopCode className="text-blue-500" />,
-      description:
-        "Introduction to machine learning algorithms and their applications.",
-    },
-    {
-      id: 3,
-      url: "courses/database-systems",
-      title: "Database Systems",
-      code: "CS403",
-      instructor: "Dr. Williams",
-      department: "Computer Science",
-      credits: 3,
-      icon: <FaLaptopCode className="text-blue-500" />,
-      description: "Design and implementation of database management systems.",
-    },
-    {
-      id: 4,
-      url: "courses/advanced-calculus",
-      title: "Advanced Calculus",
-      code: "MATH401",
-      instructor: "Dr. Brown",
-      department: "Mathematics",
-      credits: 4,
-      icon: <FaCalculator className="text-red-500" />,
-      description: "Advanced topics in differential and integral calculus.",
-    },
-    {
-      id: 5,
-      url: "courses/quantum-mechanics",
-      title: "Quantum Mechanics",
-      code: "PHY401",
-      instructor: "Dr. Davis",
-      department: "Physics",
-      credits: 4,
-      icon: <FaAtom className="text-yellow-500" />,
-      description: "Fundamental principles of quantum theory and applications.",
-    },
-    {
-      id: 6,
-      url: "courses/organic-chemistry",
-      title: "Organic Chemistry",
-      code: "CHEM401",
-      instructor: "Dr. Wilson",
-      department: "Chemistry",
-      credits: 4,
-      icon: <FaFlask className="text-teal-500" />,
-      description: "Structure, properties, and reactions of organic compounds.",
-    },
-  ];
+  useEffect(() => {
+    if (modulesData) {
+      setModules(modulesData.modules.slice(0, 3))
+    }
+  }, [modulesData])
+
+  const getIcon = (code) => {
+    switch (code) {
+      case "CS":
+        return <FaLaptopCode className="text-blue-500" />;
+      case "MATH":
+        return <FaCalculator className="text-red-500" />;
+      case "PHY":
+        return <FaAtom className="text-yellow-500" />;
+      case "CHEM":
+        return <FaFlask className="text-teal-500" />;
+      default:
+        return <FaBookOpen className="text-gray-500" />;
+    }
+  }
 
   return (
     <div className="container mx-auto p-6 space-y-8">
@@ -131,7 +154,7 @@ const AllModulesPage = () => {
                   <p className="text-sm text-gray-500">{module.code}</p>
                 </div>
                 <div className="rounded-full p-3 bg-gray-100">
-                  {module.icon}
+                  {getIcon(module.code)}
                 </div>
               </CardHeader>
               <CardContent>
@@ -150,7 +173,7 @@ const AllModulesPage = () => {
                     <span>{module.credits}</span>
                   </div>
                   De
-                  <Link className="pt-4" href={module.url}>
+                  <Link className="pt-4" href={"/dashboard/courses/" + module.code}>
                     <Button variant="outline" className="w-full">
                       <FaBookOpen className="mr-2" /> View Details
                     </Button>

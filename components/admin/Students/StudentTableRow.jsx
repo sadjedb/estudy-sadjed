@@ -15,15 +15,15 @@ const StudentTableRow = ({ student, projects }) => {
       </td>
       <td className="px-6 py-4">
         <div className="flex flex-wrap gap-2">
-          {student.wishlist?.map((project, index) => (
+          {student.wishlist_projects?.map((project, index) => (
             <span
               key={index}
               className="px-3 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
             >
-              {project}
+              {project.title}
             </span>
           ))}
-          {!student.wishlist?.length && (
+          {!student.wishlist_projects?.length && (
             <span className="px-3 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">
               No projects in wishlist
             </span>

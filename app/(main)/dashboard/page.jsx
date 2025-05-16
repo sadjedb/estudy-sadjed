@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,22 +29,60 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import withAuth from "@/lib/utils/withAuth";
+import useProject from "@/hooks/useProject";
+import useAnnouncements from "@/hooks/useAnnouncements";
+import useModule from "@/hooks/useModule";
 
 const Dashboard = () => {
-  const [projects, setProjects] = useState([
-    {
-      id: 1,
-      title: "AI Research Project",
-      status: "In Progress",
-      badge: "warning",
-    },
-    {
-      id: 2,
-      title: "Web Development",
-      status: "Active",
-      badge: "success",
-    },
-  ]);
+  const [projects, setProjects] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
+  const [courses, setCourses] = useState([]);
+  // const courses = [
+  //   {
+  //     id: 1,
+  //     title: "Advanced Web Development",
+  //     url: "dashboard/courses/web-development",
+  //     code: "CS401",
+  //     progress: 75,
+  //     instructor: "Dr. KHEBABA",
+  //   },
+  //   {
+  //     id: 2,
+  //     title: "Machine Learning Fundamentals",
+  //     url: "dashboard/courses/machine-learning",
+  //     code: "CS402",
+  //     progress: 30,
+  //     instructor: "Prof. Drif",
+  //   },
+  //   {
+  //     id: 3,
+  //     title: "Database Systems",
+  //     url: "dashboard/courses/database-systems",
+  //     code: "CS403",
+  //     progress: 90,
+  //     instructor: "Dr. Toumi",
+  //   },
+  // ];
+
+  const { data: projectsData, loading: projectsLoading } = useProject()
+  const { data: announcementsData, loading: announcementsLoading } = useAnnouncements()
+  const { data: modulesData, loading: modulesLoading } = useModule()
+
+  useEffect(() => {
+    if (projectsData) {
+      setProjects(projectsData.projects.slice(0, 3))
+    }
+  }, [projectsData])
+  useEffect(() => {
+    if (announcementsData) {
+      setAnnouncements(announcementsData.announcments.slice(0, 4))
+    }
+  }, [announcementsData])
+  useEffect(() => {
+    if (modulesData) {
+      setCourses(modulesData.modules.slice(0, 3))
+    }
+  }, [modulesData])
 
   const [newProject, setNewProject] = useState({
     title: "",
@@ -99,18 +137,6 @@ const Dashboard = () => {
     setSubmissionNote("");
   };
 
-  const announcements = [
-    {
-      title: "Final Year Project Submissions",
-      type: "New",
-      badge: "success",
-    },
-    {
-      title: "Department Meeting",
-      type: "Meeting",
-      badge: "secondary",
-    },
-  ];
 
   const departments = [
     {
@@ -135,32 +161,6 @@ const Dashboard = () => {
     },
   ];
 
-  const courses = [
-    {
-      id: 1,
-      title: "Advanced Web Development",
-      url: "dashboard/courses/web-development",
-      code: "CS401",
-      progress: 75,
-      instructor: "Dr. KHEBABA",
-    },
-    {
-      id: 2,
-      title: "Machine Learning Fundamentals",
-      url: "dashboard/courses/machine-learning",
-      code: "CS402",
-      progress: 30,
-      instructor: "Prof. Drif",
-    },
-    {
-      id: 3,
-      title: "Database Systems",
-      url: "dashboard/courses/database-systems",
-      code: "CS403",
-      progress: 90,
-      instructor: "Dr. Toumi",
-    },
-  ];
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -188,17 +188,17 @@ const Dashboard = () => {
                 </p>
               </CardHeader>
               <CardContent>
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                {/* <div className="w-full bg-gray-200 rounded-full h-2.5">
                   <div
                     className="bg-blue-600 h-2.5 rounded-full"
                     style={{ width: `${course.progress}%` }}
                   ></div>
-                </div>
-                <div className="flex justify-between mt-2 text-sm text-gray-600">
+                </div> */}
+                {/* <div className="flex justify-between mt-2 text-sm text-gray-600">
                   <span>Progress</span>
                   <span>{course.progress}%</span>
-                </div>
-                <Link href={course.url}>
+                </div> */}
+                <Link href={"dashboard/courses/" + course.code}>
                   <Button variant="outline" className="w-full mt-4">
                     Continue Learning
                   </Button>
@@ -225,9 +225,9 @@ const Dashboard = () => {
                   className="flex justify-between items-center border-b pb-2 last:border-b-0"
                 >
                   <span>{announcement.title}</span>
-                  <Badge variant={announcement.badge}>
-                    {announcement.type}
-                  </Badge>
+                  {announcement?.urgent == 1 && <Badge variant={announcement.urgent}>
+                    Urgent
+                  </Badge>}
                 </div>
               ))}
             </div>
@@ -277,7 +277,7 @@ const Dashboard = () => {
                 >
                   <span>{project.title}</span>
                   <div className="flex items-center gap-2">
-                    <Badge variant={project.badge}>{project.status}</Badge>
+                    {/* <Badge variant={project.badge}>{project.status}</Badge> */}
                     <Button
                       size="sm"
                       variant="outline"

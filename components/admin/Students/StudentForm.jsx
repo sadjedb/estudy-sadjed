@@ -13,7 +13,6 @@ const StudentForm = ({
     email: "",
     password: "",
     department: "cs",
-    wishlist: [],
   },
 }) => {
   const [formData, setFormData] = useState({
@@ -212,22 +211,7 @@ const StudentForm = ({
               </p>
             )}
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Wishlist *
-            </label>
-            <select
-              name="department"
-              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={formData.wishlist}
-              onChange={handleWishlistChange}
-            >
-              <option value="sui">Computer Science</option>
-              <option value="math">Mathematics</option>
-              <option value="physics">Physics</option>
-              <option value="chemistry">Chemistry</option>
-            </select>
-          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Department *
