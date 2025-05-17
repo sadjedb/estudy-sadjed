@@ -29,8 +29,8 @@ const ModuleManagement = () => {
     syllabus: [{ week: "", description: "", courseFile: null, tdFile: null }],
   });
 
-  const { data, loading, error, addModule, removeModule } = useModule()
-
+  const { data, loading, error, addModule, removeModule } = useModule();
+  console.log("ModuleManagement data", data);
   const handleModuleChange = (e) => {
     const { name, value } = e.target;
     setModuleData({ ...moduleData, [name]: value });
@@ -88,13 +88,17 @@ const ModuleManagement = () => {
     });
   };
 
-  useEffect(() => { if (data) { setModules(data.modules) } }, [data])
+  useEffect(() => {
+    if (data) {
+      setModules(data.modules);
+    }
+  }, [data]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      await addModule(moduleData)
+      await addModule(moduleData);
       const newModule = {
         ...moduleData,
         id: editingModuleId || Date.now().toString(),
@@ -392,8 +396,9 @@ const ModuleManagement = () => {
               {modules.map((module) => (
                 <div
                   key={module.id}
-                  className={`border p-4 rounded-lg hover:bg-gray-50 ${editingModuleId === module.id ? "bg-blue-50" : ""
-                    }`}
+                  className={`border p-4 rounded-lg hover:bg-gray-50 ${
+                    editingModuleId === module.id ? "bg-blue-50" : ""
+                  }`}
                 >
                   <h3 className="font-bold text-lg">{module.title}</h3>
                   <p className="text-sm text-gray-600">

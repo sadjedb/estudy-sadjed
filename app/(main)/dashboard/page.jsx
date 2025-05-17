@@ -64,25 +64,26 @@ const Dashboard = () => {
   //   },
   // ];
 
-  const { data: projectsData, loading: projectsLoading } = useProject()
-  const { data: announcementsData, loading: announcementsLoading } = useAnnouncements()
-  const { data: modulesData, loading: modulesLoading } = useModule()
-
+  const { data: projectsData, loading: projectsLoading } = useProject();
+  const { data: announcementsData, loading: announcementsLoading } =
+    useAnnouncements();
+  const { data: modulesData, loading: modulesLoading } = useModule();
+  console.log("modulesData", modulesData);
   useEffect(() => {
     if (projectsData) {
-      setProjects(projectsData.projects.slice(0, 3))
+      setProjects(projectsData.projects.slice(0, 3));
     }
-  }, [projectsData])
+  }, [projectsData]);
   useEffect(() => {
     if (announcementsData) {
-      setAnnouncements(announcementsData.announcments.slice(0, 4))
+      setAnnouncements(announcementsData.announcments.slice(0, 4));
     }
-  }, [announcementsData])
+  }, [announcementsData]);
   useEffect(() => {
     if (modulesData) {
-      setCourses(modulesData.modules.slice(0, 3))
+      setCourses(modulesData.modules.slice(0, 3));
     }
-  }, [modulesData])
+  }, [modulesData]);
 
   const [newProject, setNewProject] = useState({
     title: "",
@@ -137,7 +138,6 @@ const Dashboard = () => {
     setSubmissionNote("");
   };
 
-
   const departments = [
     {
       name: "Computer Science",
@@ -160,7 +160,6 @@ const Dashboard = () => {
       projects: 10,
     },
   ];
-
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -225,9 +224,9 @@ const Dashboard = () => {
                   className="flex justify-between items-center border-b pb-2 last:border-b-0"
                 >
                   <span>{announcement.title}</span>
-                  {announcement?.urgent == 1 && <Badge variant={announcement.urgent}>
-                    Urgent
-                  </Badge>}
+                  {announcement?.urgent == 1 && (
+                    <Badge variant={announcement.urgent}>Urgent</Badge>
+                  )}
                 </div>
               ))}
             </div>

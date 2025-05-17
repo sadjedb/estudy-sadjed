@@ -1,78 +1,68 @@
 "use client";
+import useAnnouncements from "@/hooks/useAnnouncements";
 import React, { useState } from "react";
-import { FiLayers, FiBook, FiCalendar, FiAlertTriangle } from "react-icons/fi";
-//y7atohom les admin mn admin dashboard
+import {
+  FiLayers,
+  FiBook,
+  FiCalendar,
+  FiAlertTriangle,
+  FiGrid,
+} from "react-icons/fi";
+
 const DepartmentPage = () => {
-  const [activeDept, setActiveDept] = useState("cs");
+  const [activeDept, setActiveDept] = useState("all");
+  const {
+    loading: loadingAnnouncements,
+    data: announcementsData,
+    addAnnouncement,
+    removeAnnouncement,
+  } = useAnnouncements();
+
+  const filteredAnnouncements =
+    announcementsData?.announcments
+      ?.filter((ann) =>
+        activeDept === "all"
+          ? ann.department === "all"
+          : ann.department === "all" || ann.department === activeDept
+      )
+      .map((ann) => ({
+        id: ann.id,
+        title: ann.title,
+        date: new Date(ann.datetime).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }),
+        urgent: ann.urgent === 1,
+        content: ann.content,
+      })) || [];
 
   const departments = {
+    all: {
+      name: "All Departments",
+      icon: <FiGrid className="text-gray-500" />,
+    },
     cs: {
       name: "Computer Science",
       icon: <FiLayers className="text-blue-500" />,
-      announcements: [
-        {
-          id: 1,
-          title: "Final Project Submission Deadline Extended",
-          date: "June 5, 2024",
-          urgent: true,
-          content:
-            "The deadline for final project submissions has been extended to June 15th due to technical issues with the submission portal.",
-        },
-        {
-          id: 2,
-          title: "New Computer Lab Opening",
-          date: "May 28, 2024",
-          urgent: false,
-          content:
-            "The new AI research lab in Building C will open next Monday with state-of-the-art GPU workstations.",
-        },
-        {
-          id: 3,
-          title: "Summer Internship Opportunities",
-          date: "May 20, 2024",
-          urgent: false,
-          content:
-            "Local tech companies are offering summer internships for CS students. Applications due by June 1st.",
-        },
-      ],
     },
     math: {
       name: "Mathematics",
       icon: <FiBook className="text-purple-500" />,
-      announcements: [
-        {
-          id: 1,
-          title: "Advanced Calculus Exam Schedule",
-          date: "June 10, 2024",
-          urgent: true,
-          content:
-            "The final exam for Advanced Calculus will be held on June 15th from 9AM-12PM in the Main Auditorium.",
-        },
-        {
-          id: 2,
-          title: "Mathematics Symposium",
-          date: "June 5, 2024",
-          urgent: false,
-          content:
-            "Annual department symposium featuring guest speakers from MIT and Cambridge University.",
-        },
-      ],
     },
     physics: {
       name: "Physics",
       icon: <FiLayers className="text-green-500" />,
-      announcements: [
-        {
-          id: 1,
-          title: "Quantum Physics Lab Maintenance",
-          date: "June 1, 2024",
-          urgent: true,
-          content:
-            "The quantum lab will be closed June 3-7 for annual equipment maintenance and upgrades.",
-        },
-      ],
     },
   };
+
+  if (loadingAnnouncements) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+        <div className="text-gray-500">Loading announcements...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -111,7 +101,7 @@ const DepartmentPage = () => {
             </h2>
           </div>
 
-          {departments[activeDept].announcements.map((announcement) => (
+          {filteredAnnouncements.map((announcement) => (
             <div
               key={announcement.id}
               className={`bg-white p-6 rounded-xl shadow-sm border-l-4 ${
@@ -133,7 +123,7 @@ const DepartmentPage = () => {
             </div>
           ))}
 
-          {departments[activeDept].announcements.length === 0 && (
+          {filteredAnnouncements.length === 0 && (
             <div className="bg-white p-8 rounded-xl shadow-sm text-center">
               <p className="text-gray-500">
                 No announcements available for this department
