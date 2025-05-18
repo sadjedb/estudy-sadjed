@@ -1,28 +1,40 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { FaLinkedin, FaFacebookSquare, FaGithub } from "react-icons/fa";
 import { motion } from "framer-motion";
+import { useSession } from "next-auth/react";
 
 const Footer = () => {
+  const session = useSession();
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    if (session.status === "authenticated" && session.data?.user?.roles) {
+      setIsAdmin(session.data.user.roles.includes("admin"));
+    }
+  }, [session]);
+  console.log("Session data:", session.data);
   const footerLinks = [
     {
       title: "About",
       links: [
-        { label: "About Us", href: "#" },
-        { label: "Contact", href: "#" },
+        { label: "Department", href: "/departments" },
+        { label: "Projects", href: "/projects" },
       ],
     },
     {
       title: "Resources",
       links: [
-        { label: "Documentation", href: "#" },
-        { label: "Help Center", href: "#" },
+        {
+          label: "Dashboard",
+          href: isAdmin ? "/admin/dashboard" : "/dashboard",
+        },
+        { label: "Help Center", href: "/contact" },
       ],
     },
     {
       title: "Legal",
       links: [
-        { label: "Privacy", href: "#" },
+        { label: "Privacy", href: "/privacy" },
         { label: "Terms", href: "#" },
       ],
     },
