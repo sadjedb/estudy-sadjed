@@ -40,7 +40,7 @@ const Header = () => {
         <Link href="/" className="flex items-center gap-2 group">
           {/* <Image src={logo} width={40} height={40} alt="logo" /> */}
           <span className="text-2xl font-bold text-blue-600 group-hover:text-blue-700 transition-colors">
-            Logo
+            estudy
           </span>
         </Link>
 

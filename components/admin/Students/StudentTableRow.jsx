@@ -7,7 +7,7 @@ const StudentTableRow = ({ student, projects }) => {
   const [marks, setMarks] = useState({
     MATH: { td: "", tp: "", project: "", exam: "" },
     PHYSICS: { td: "", tp: "", project: "", exam: "" },
-    INFO: { td: "", tp: "", project: "", exam: "" },
+    INFO: { tp: "", project: "", exam: "" },
   });
 
   const handleMarkChange = (module, field, value) => {
@@ -77,7 +77,7 @@ const StudentTableRow = ({ student, projects }) => {
       </tr>
 
       {isMarksModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-white border-[1px]  bg-opacity-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
             <h2 className="text-2xl font-bold mb-4">Student Marks</h2>
             <form onSubmit={handleSubmit}>
