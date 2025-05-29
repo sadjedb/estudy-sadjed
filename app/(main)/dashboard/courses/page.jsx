@@ -88,13 +88,13 @@ const AllModulesPage = () => {
   //     description: "Structure, properties, and reactions of organic compounds.",
   //   },
   // ];
-  const { data: modulesData, loading: modulesLoading } = useModule()
+  const { data: modulesData, loading: modulesLoading } = useModule();
 
   useEffect(() => {
     if (modulesData) {
-      setModules(modulesData.modules.slice(0, 3))
+      setModules(modulesData.modules.slice(0, 3));
     }
-  }, [modulesData])
+  }, [modulesData]);
 
   const getIcon = (code) => {
     switch (code) {
@@ -109,8 +109,8 @@ const AllModulesPage = () => {
       default:
         return <FaBookOpen className="text-gray-500" />;
     }
-  }
-
+  };
+  console.log(allModules);
   return (
     <div className="container mx-auto p-6 space-y-8">
       <div className="flex items-center justify-between">
@@ -173,7 +173,10 @@ const AllModulesPage = () => {
                     <span>{module.credits}</span>
                   </div>
                   De
-                  <Link className="pt-4" href={"/dashboard/courses/" + module.code}>
+                  <Link
+                    className="pt-4"
+                    href={"/dashboard/courses/" + module.code}
+                  >
                     <Button variant="outline" className="w-full">
                       <FaBookOpen className="mr-2" /> View Details
                     </Button>
@@ -192,9 +195,6 @@ const AllModulesPage = () => {
               <CardContent className="p-6">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div className="flex items-start space-x-4">
-                    <div className="rounded-full p-3 bg-gray-100">
-                      {module.icon}
-                    </div>
                     <div>
                       <h3 className="text-lg font-semibold">{module.title}</h3>
                       <p className="text-sm text-gray-500">{module.code}</p>
@@ -216,7 +216,7 @@ const AllModulesPage = () => {
                       <p className="text-gray-500">Credits</p>
                       <p>{module.credits}</p>
                     </div>
-                    <Link href={module.url}>
+                    <Link href={"/dashboard/courses/" + module.code}>
                       <Button variant="outline" className="md:ml-4">
                         <FaBookOpen className="mr-2" /> Details
                       </Button>
