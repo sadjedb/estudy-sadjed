@@ -27,6 +27,7 @@ export async function GET(request) {
 export async function POST(request) {
     const body = await request.json();
     try {
+        // body should include assignedModules: [moduleId, ...]
         const studentId = await studentService.addOrUpdateStudent(body);
         return new Response(JSON.stringify({ message: "Student added/updated", studentId, status: 201 }));
     } catch (error) {

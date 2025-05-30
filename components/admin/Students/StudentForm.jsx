@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 
 const StudentForm = ({
   projects,
+  modules, // <-- Add this prop
   setShowAddForm,
   handleAddStudent,
   initialStudent = {
@@ -13,20 +14,24 @@ const StudentForm = ({
     email: "",
     password: "",
     department: "cs",
+    assignedModules: [], // <-- Add default
   },
 }) => {
   const [formData, setFormData] = useState({
     ...initialStudent,
     wishlist: [],
+    assignedModules: initialStudent.assignedModules || [], // <-- Track assigned modules
   });
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  console.log(modules)
 
   useEffect(() => {
     setFormData({
       ...initialStudent,
       wishlist: initialStudent.id ? initialStudent.wishlist : [],
+      assignedModules: initialStudent.id ? (initialStudent.assignedModules || []) : [],
     });
     setFormErrors({});
   }, [initialStudent.id]);
@@ -80,6 +85,20 @@ const StudentForm = ({
     }
   }
 
+  // Add handler for module assignment
+  const handleModuleAssignmentChange = (e) => {
+    const moduleId = e.target.value;
+    setFormData((prev) => {
+      const alreadyAssigned = prev.assignedModules.includes(moduleId);
+      return {
+        ...prev,
+        assignedModules: alreadyAssigned
+          ? prev.assignedModules.filter((id) => id !== moduleId)
+          : [...prev.assignedModules, moduleId],
+      };
+    });
+  };
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -96,6 +115,7 @@ const StudentForm = ({
     try {
       const studentData = {
         ...formData,
+        assignedModules: formData.assignedModules, // Ensure this is sent
       };
 
       await handleAddStudent(studentData);
@@ -115,7 +135,6 @@ const StudentForm = ({
       <h2 className="text-xl font-semibold mb-4">
         {initialStudent.id ? "Edit Student" : "Add New Student"}
       </h2>
-
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid md:grid-cols-2 gap-4">
           <div>
@@ -230,11 +249,34 @@ const StudentForm = ({
           </div>
         </div>
 
+        {/* Module Assignment Section */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Assign Modules
+          </label>
+          <div className="flex flex-wrap gap-3">
+            {modules && modules.length > 0 ? (
+              modules.map((mod) => (
+                <label key={mod.id} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    value={mod.id}
+                    checked={formData.assignedModules.includes(mod.id)}
+                    onChange={handleModuleAssignmentChange}
+                  />
+                  <span>{mod.title}</span>
+                </label>
+              ))
+            ) : (
+              <span className="text-gray-500">No modules available</span>
+            )}
+          </div>
+        </div>
+
         <div className="flex space-x-3 pt-2">
           <button
             type="submit"
-            className={`px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center transition-colors duration-200 ${isSubmitting ? "opacity-75 cursor-not-allowed" : ""
-              }`}
+            className={`px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center transition-colors duration-200 ${isSubmitting ? "opacity-75 cursor-not-allowed" : ""}`}
             disabled={isSubmitting}
           >
             <FiSave className="inline mr-2" />

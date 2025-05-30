@@ -14,6 +14,7 @@ import useProject from "@/hooks/useProject";
 import useStudent from "@/hooks/useStudent";
 import useAnnouncements from "@/hooks/useAnnouncements";
 import useWhishlist from "@/hooks/useWhishlist";
+import useModule from "@/hooks/useModule";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("announcements");
@@ -53,6 +54,8 @@ const AdminDashboard = () => {
   const { loading, data: projectsData, addProject, removeProject } = useProject();
   const { loading: loadingStudents, data: studentsData, addStudent } = useStudent()
   const { loading: loadingAnnouncements, data: announcementsData, addAnnouncement, removeAnnouncement } = useAnnouncements()
+  const { loading: loadingModules, data: modulesData } = useModule();
+  const modules = modulesData?.modules || [];
 
   const exitEditMode = () => setEditMode({ type: null, id: null });
 
@@ -203,6 +206,7 @@ const AdminDashboard = () => {
                   {showAddForm ? (
                     <StudentForm
                       projects={[]}
+                      modules={modules}
                       setShowAddForm={setShowAddForm}
                       handleAddStudent={handleAddStudent}
                     />

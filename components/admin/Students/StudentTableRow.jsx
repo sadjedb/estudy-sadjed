@@ -1,32 +1,56 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import useMarks from "@/hooks/useMarks";
 
 const StudentTableRow = ({ student, projects }) => {
   const [isMarksModalOpen, setIsMarksModalOpen] = useState(false);
 
-  const [marks, setMarks] = useState({
-    MATH: { td: "", tp: "", project: "", exam: "" },
-    PHYSICS: { td: "", tp: "", project: "", exam: "" },
-    INFO: { tp: "", project: "", exam: "" },
-  });
+  const [marks, setMarks] = useState([]);
+  const {
+    data: marksData,
+    loading: marksLoading,
+    statusCode: marksStatusCode,
+    addOrUpdateMark,
+  } = useMarks(student?.id);
 
-  const handleMarkChange = (module, field, value) => {
-    setMarks((prev) => ({
-      ...prev,
-      [module]: {
-        ...prev[module],
-        [field]: value,
-      },
-    }));
+  // Use marksData from the hook if available
+  useEffect(() => {
+    if (marksData?.marks && Array.isArray(marksData?.marks)) {
+      setMarks(
+        marksData.marks.map((item) => ({
+          id: item.mark_id,
+          student_module_id: item.student_module_id,
+          module_id: item.module_id,
+          title: item.title, // Add title from response
+          year: item.year,
+          score: item.score,
+          td_score: item.td_score,
+          tp_score: item.tp_score,
+        }))
+      );
+    }
+  }, [marksData]);
+
+  const handleMarkChange = (markId, field, value) => {
+    setMarks((prev) =>
+      prev.map((mark) =>
+        mark.student_module_id === markId ? { ...mark, [field]: value } : mark
+      )
+    );
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Marks submitted:", marks);
-    alert("Marks submitted successfully!");
+    // Save all marks for this student
+    for (const mark of marks) {
+      await addOrUpdateMark({
+        ...mark,
+        student_id: student.id,
+        student_module_id: mark.student_module_id,
+      });
+    }
     setIsMarksModalOpen(false);
   };
-  console.log("Student data:", student);
   return (
     <>
       <tr>
@@ -81,74 +105,54 @@ const StudentTableRow = ({ student, projects }) => {
           <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
             <h2 className="text-2xl font-bold mb-4">Student Marks</h2>
             <form onSubmit={handleSubmit}>
-              {Object.entries(marks).map(([module, scores]) => (
-                <div key={module} className="mb-6">
-                  <h3 className="text-lg font-semibold mb-3">{module}</h3>
+              {marks.map((mark) => (
+                <div key={mark.title} className="mb-6">
+                  <h3 className="text-lg font-semibold mb-3">
+                    Module: {mark.title || mark.module_id} ({mark.year})
+                  </h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {scores.td !== undefined && (
-                      <div>
-                        <label className="block text-sm font-medium mb-1">
-                          TD Mark
-                        </label>
-                        <input
-                          type="number"
-                          className="w-full p-2 border rounded"
-                          value={scores.td}
-                          onChange={(e) =>
-                            handleMarkChange(module, "td", e.target.value)
-                          }
-                        />
-                      </div>
-                    )}
-                    {scores.tp !== undefined && (
-                      <div>
-                        <label className="block text-sm font-medium mb-1">
-                          TP Mark
-                        </label>
-                        <input
-                          type="number"
-                          className="w-full p-2 border rounded"
-                          value={scores.tp}
-                          onChange={(e) =>
-                            handleMarkChange(module, "tp", e.target.value)
-                          }
-                        />
-                      </div>
-                    )}
-                    {scores.project !== undefined && (
-                      <div>
-                        <label className="block text-sm font-medium mb-1">
-                          Project Mark
-                        </label>
-                        <input
-                          type="number"
-                          className="w-full p-2 border rounded"
-                          value={scores.project}
-                          onChange={(e) =>
-                            handleMarkChange(module, "project", e.target.value)
-                          }
-                        />
-                      </div>
-                    )}
-                    {scores.exam !== undefined && (
-                      <div>
-                        <label className="block text-sm font-medium mb-1">
-                          Exam Mark
-                        </label>
-                        <input
-                          type="number"
-                          className="w-full p-2 border rounded"
-                          value={scores.exam}
-                          onChange={(e) =>
-                            handleMarkChange(module, "exam", e.target.value)
-                          }
-                        />
-                      </div>
-                    )}
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        Exam Mark
+                      </label>
+                      <input
+                        type="number"
+                        className="w-full p-2 border rounded"
+                        value={mark.score ?? ""}
+                        onChange={(e) =>
+                          handleMarkChange(mark.student_module_id, "score", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        TD Mark
+                      </label>
+                      <input
+                        type="number"
+                        className="w-full p-2 border rounded"
+                        value={mark.td_score ?? ""}
+                        onChange={(e) =>
+                          handleMarkChange(mark.student_module_id, "td_score", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">
+                        TP Mark
+                      </label>
+                      <input
+                        type="number"
+                        className="w-full p-2 border rounded"
+                        value={mark.tp_score ?? ""}
+                        onChange={(e) =>
+                          handleMarkChange(mark.student_module_id, "tp_score", e.target.value)
+                        }
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
-
               <div className="mt-6 flex justify-end gap-3">
                 <Button
                   type="button"

@@ -62,7 +62,13 @@ const useStudent = () => {
       });
       setStatusCode(response.status);
       const result = await response.json();
-      setData((prevData) => ({ ...prevData, students: [...prevData.students, { ...student, id: result.studentId }] }));
+      setData((prevData) => ({
+        ...prevData,
+        students: [
+          ...(prevData?.students || []),
+          { ...student, id: result.studentId }
+        ]
+      }));
     } catch (error) {
       console.error('Error adding student:', error);
     } finally {
