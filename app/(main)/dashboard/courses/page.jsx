@@ -18,81 +18,12 @@ import useModule from "@/hooks/useModule";
 const AllModulesPage = () => {
   const [layout, setLayout] = useState("grid");
   const [allModules, setModules] = useState([]);
-  // const allModules = [
-  //   {
-  //     id: 1,
-  //     url: "courses/web-development",
-  //     title: "Advanced Web Development",
-  //     code: "CS401",
-  //     instructor: "Dr. Smith",
-  //     department: "Computer Science",
-  //     credits: 4,
-  //     icon: <FaLaptopCode className="text-blue-500" />,
-  //     description:
-  //       "Advanced concepts in modern web development frameworks and architectures.",
-  //   },
-  //   {
-  //     id: 2,
-  //     url: "courses/machine-learning",
-  //     title: "Machine Learning Fundamentals",
-  //     code: "CS402",
-  //     instructor: "Prof. Johnson",
-  //     department: "Computer Science",
-  //     credits: 4,
-  //     icon: <FaLaptopCode className="text-blue-500" />,
-  //     description:
-  //       "Introduction to machine learning algorithms and their applications.",
-  //   },
-  //   {
-  //     id: 3,
-  //     url: "courses/database-systems",
-  //     title: "Database Systems",
-  //     code: "CS403",
-  //     instructor: "Dr. Williams",
-  //     department: "Computer Science",
-  //     credits: 3,
-  //     icon: <FaLaptopCode className="text-blue-500" />,
-  //     description: "Design and implementation of database management systems.",
-  //   },
-  //   {
-  //     id: 4,
-  //     url: "courses/advanced-calculus",
-  //     title: "Advanced Calculus",
-  //     code: "MATH401",
-  //     instructor: "Dr. Brown",
-  //     department: "Mathematics",
-  //     credits: 4,
-  //     icon: <FaCalculator className="text-red-500" />,
-  //     description: "Advanced topics in differential and integral calculus.",
-  //   },
-  //   {
-  //     id: 5,
-  //     url: "courses/quantum-mechanics",
-  //     title: "Quantum Mechanics",
-  //     code: "PHY401",
-  //     instructor: "Dr. Davis",
-  //     department: "Physics",
-  //     credits: 4,
-  //     icon: <FaAtom className="text-yellow-500" />,
-  //     description: "Fundamental principles of quantum theory and applications.",
-  //   },
-  //   {
-  //     id: 6,
-  //     url: "courses/organic-chemistry",
-  //     title: "Organic Chemistry",
-  //     code: "CHEM401",
-  //     instructor: "Dr. Wilson",
-  //     department: "Chemistry",
-  //     credits: 4,
-  //     icon: <FaFlask className="text-teal-500" />,
-  //     description: "Structure, properties, and reactions of organic compounds.",
-  //   },
-  // ];
+
   const { data: modulesData, loading: modulesLoading } = useModule();
 
   useEffect(() => {
     if (modulesData) {
-      setModules(modulesData.modules.slice(0, 3));
+      setModules(modulesData.modules);
     }
   }, [modulesData]);
 

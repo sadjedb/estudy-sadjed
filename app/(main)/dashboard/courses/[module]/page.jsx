@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   FaChevronLeft,
@@ -10,7 +10,6 @@ import {
   FaClipboardList,
   FaDownload,
   FaTimes,
-  FaSpinner,
 } from "react-icons/fa";
 import {
   Dialog,
@@ -19,6 +18,7 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
+import useModule from "@/hooks/useModule";
 
 const LoadingSkeleton = () => (
   <div className="container mx-auto p-6 space-y-8">
@@ -78,7 +78,7 @@ const SyllabusList = ({ syllabus, onItemClick }) => (
   </ul>
 );
 
-const AssessmentTable = ({ assessments }) => (
+const AssessmentTable = () => (
   <div className="border rounded-lg overflow-hidden">
     <table className="min-w-full divide-y divide-gray-200">
       <thead className="bg-gray-50">
@@ -89,25 +89,33 @@ const AssessmentTable = ({ assessments }) => (
           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
             Weight
           </th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-            Due Date
-          </th>
         </tr>
       </thead>
       <tbody className="bg-white divide-y divide-gray-200">
-        {assessments.map((item, index) => (
-          <tr key={index}>
-            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-              {item.type}
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              {item.weight}
-            </td>
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-              {item.due}
-            </td>
-          </tr>
-        ))}
+        <tr>
+          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+            Intero 1
+          </td>
+          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            10/20
+          </td>
+        </tr>
+        <tr>
+          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+            Absence
+          </td>
+          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            -1/20
+          </td>
+        </tr>
+        <tr>
+          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+            Project
+          </td>
+          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            10/20
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
@@ -117,8 +125,8 @@ const InstructorPanel = ({
   instructor,
   instructorTitle,
   office,
-  email,
   officeHours,
+  email,
 }) => (
   <div className="bg-white p-6 rounded-lg shadow-sm border space-y-4">
     <h2 className="text-xl font-semibold flex items-center">
@@ -128,7 +136,9 @@ const InstructorPanel = ({
       <p className="font-medium">{instructor}</p>
       <p className="text-sm text-gray-600">{instructorTitle}</p>
       <p className="text-sm text-gray-600">Office: {office}</p>
-      <p className="text-sm text-gray-600">Email: {email}</p>
+      <p className="text-sm text-gray-600">
+        Email: {email || `${instructor}@gmail.com`}
+      </p>
       <p className="text-sm text-gray-600">Office Hours: {officeHours}</p>
     </div>
   </div>
@@ -173,7 +183,9 @@ const MaterialsDialog = ({ isOpen, onClose, selectedWeek }) => (
                 <p className="text-sm text-gray-600">
                   Lecture slides and notes
                 </p>
-                <p className="text-xs text-gray-500 mt-1">PDF • ~2.4MB</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {selectedWeek.courseFile}
+                </p>
               </div>
               <a
                 href={selectedWeek.courseFile}
@@ -195,7 +207,9 @@ const MaterialsDialog = ({ isOpen, onClose, selectedWeek }) => (
                 <p className="text-sm text-gray-600">
                   Tutorial exercises and practical work
                 </p>
-                <p className="text-xs text-gray-500 mt-1">PDF • ~1.8MB</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {selectedWeek.tdFile}
+                </p>
               </div>
               <a
                 href={selectedWeek.tdFile}
@@ -220,70 +234,68 @@ const MaterialsDialog = ({ isOpen, onClose, selectedWeek }) => (
   </Dialog>
 );
 
-const ModuleDetailPage = ({ params }) => {
+const ModuleDetailPage = () => {
   const router = useRouter();
+  const params = useParams();
+  const pathname = usePathname();
   const [selectedWeek, setSelectedWeek] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [moduleData, setModuleData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const moduleId = params?.module;
+
+  const {
+    data: modulesData,
+    loading: modulesLoading,
+    error: modulesError,
+    getModuleById,
+  } = useModule();
+
   useEffect(() => {
-    const fetchModuleData = async () => {
-      try {
-        // Mock data - replace with actual API call
-        const mockData = {
-          id: params.id,
-          title: "Advanced Web Development",
-          code: "CS401",
-          instructor: "Dr. Sarah Smith",
-          department: "Computer Science",
-          credits: 4,
-          description:
-            "This course covers advanced concepts in modern web development including React, Next.js, and server-side rendering techniques.",
-          syllabus: [
-            {
-              week: "Week 1: Advanced React Patterns",
-              courseFile: "/files/course_week1.pdf",
-              tdFile: "/files/td_week1.pdf",
-              description:
-                "Deep dive into React composition patterns including Higher-Order Components, Render Props, and Hooks.",
-            },
-            // ... rest of the syllabus items
-          ],
-          schedule: "Mon/Wed 10:00-11:30 AM",
-          location: "Computer Science Building, Room 203",
-          assessment: [
-            { type: "Assignment 1", weight: "15%", due: "Oct 15" },
-            // ... rest of the assessment items
-          ],
-          instructorTitle: "Professor of Computer Science",
-          office: "CS Building 305",
-          email: "s.smith@university.edu",
-          officeHours: "Tue/Thu 2-4 PM",
-        };
+    if (!moduleId) {
+      setError("Module ID is missing");
+      setLoading(false);
+      router.push("/courses");
+    }
+  }, [moduleId, router]);
 
-        setModuleData(mockData);
-        // In a real app:
-        // const response = await fetch(`/api/modules/${params.id}`);
-        // const data = await response.json();
-        // setModuleData(data);
-      } catch (err) {
-        setError(err.message || "Failed to load module");
-      } finally {
-        setLoading(false);
-      }
-    };
+  useEffect(() => {
+    if (moduleId) {
+      setLoading(true);
+      getModuleById(moduleId)
+        .catch((err) => {
+          setError(err.message || "Failed to load module");
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }, [moduleId]);
 
-    fetchModuleData();
-  }, [params.id]);
+  const handleBack = () => {
+    if (window.history.state && window.history.state.idx > 0) {
+      router.back();
+    } else {
+      router.push("/courses");
+    }
+  };
 
   const handleWeekClick = (week) => {
     setSelectedWeek(week);
     setIsDialogOpen(true);
   };
 
-  if (loading) return <LoadingSkeleton />;
+  const [module, setModule] = useState(null);
+
+  useEffect(() => {
+    if (modulesData && modulesData.module) {
+      setModule(modulesData.module);
+    }
+  }, [modulesData]);
+
+  if (loading || modulesLoading) return <LoadingSkeleton />;
+
   if (error) {
     return (
       <div className="container mx-auto p-6 text-center">
@@ -292,23 +304,39 @@ const ModuleDetailPage = ({ params }) => {
           <Button
             variant="outline"
             className="mt-4"
-            onClick={() => router.push("/")}
+            onClick={() => router.push("/courses")}
           >
-            Return to Dashboard
+            Return to Courses
           </Button>
         </div>
       </div>
     );
   }
 
-  if (!moduleData) return null;
+  if (!module) {
+    return (
+      <div className="container mx-auto p-6 text-center">
+        <div className="bg-yellow-50 text-yellow-700 p-4 rounded-lg">
+          <p className="font-medium">Module not found</p>
+          <Button
+            variant="outline"
+            className="mt-4"
+            onClick={() => router.push("/courses")}
+          >
+            Return to Courses
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-6 space-y-8">
       <ModuleHeader
-        title={moduleData.title}
-        code={moduleData.code}
-        department={moduleData.department}
+        title={module.title}
+        code={module.code}
+        department={module.department}
+        onBack={handleBack}
       />
 
       <div className="grid md:grid-cols-3 gap-8">
@@ -317,7 +345,7 @@ const ModuleDetailPage = ({ params }) => {
             <h2 className="text-2xl font-semibold flex items-center">
               <FaBookOpen className="mr-2 text-blue-500" /> Description
             </h2>
-            <p className="text-gray-700">{moduleData.description}</p>
+            <p className="text-gray-700">{module.description}</p>
           </section>
 
           <section className="space-y-4">
@@ -325,7 +353,7 @@ const ModuleDetailPage = ({ params }) => {
               <FaCalendarAlt className="mr-2 text-green-500" /> Syllabus
             </h2>
             <SyllabusList
-              syllabus={moduleData.syllabus}
+              syllabus={module.syllabus || []}
               onItemClick={handleWeekClick}
             />
           </section>
@@ -334,22 +362,22 @@ const ModuleDetailPage = ({ params }) => {
             <h2 className="text-2xl font-semibold flex items-center">
               <FaClipboardList className="mr-2 text-purple-500" /> Assessment
             </h2>
-            <AssessmentTable assessments={moduleData.assessment} />
+            <AssessmentTable />
           </section>
         </div>
 
         <div className="space-y-8">
           <InstructorPanel
-            instructor={moduleData.instructor}
-            instructorTitle={moduleData.instructorTitle}
-            office={moduleData.office}
-            email={moduleData.email}
-            officeHours={moduleData.officeHours}
+            instructor={module.instructor}
+            instructorTitle={module.instructorTitle}
+            office={module.office}
+            email={module.email}
+            officeHours={module.officeHours}
           />
           <CourseDetailsCard
-            schedule={moduleData.schedule}
-            location={moduleData.location}
-            credits={moduleData.credits}
+            schedule={module.schedule}
+            location={module.location}
+            credits={module.credits}
           />
         </div>
       </div>

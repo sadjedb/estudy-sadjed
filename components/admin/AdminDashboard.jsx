@@ -32,7 +32,6 @@ const AdminDashboard = () => {
     urgent: false,
   });
 
-
   const [newProject, setNewProject] = useState({
     title: "",
     description: "",
@@ -40,7 +39,6 @@ const AdminDashboard = () => {
     spots: 1,
     supervisor: "",
   });
-
 
   const [editForm, setEditForm] = useState({
     title: "",
@@ -51,9 +49,23 @@ const AdminDashboard = () => {
     spots: 1,
     supervisor: "",
   });
-  const { loading, data: projectsData, addProject, removeProject } = useProject();
-  const { loading: loadingStudents, data: studentsData, addStudent } = useStudent()
-  const { loading: loadingAnnouncements, data: announcementsData, addAnnouncement, removeAnnouncement } = useAnnouncements()
+  const {
+    loading,
+    data: projectsData,
+    addProject,
+    removeProject,
+  } = useProject();
+  const {
+    loading: loadingStudents,
+    data: studentsData,
+    addStudent,
+  } = useStudent();
+  const {
+    loading: loadingAnnouncements,
+    data: announcementsData,
+    addAnnouncement,
+    removeAnnouncement,
+  } = useAnnouncements();
   const { loading: loadingModules, data: modulesData } = useModule();
   const modules = modulesData?.modules || [];
 
@@ -107,8 +119,7 @@ const AdminDashboard = () => {
     if (projectsData) {
       setProjects(projectsData.projects);
     }
-  }, [projectsData])
-
+  }, [projectsData]);
 
   const handleAddProject = async (e) => {
     e.preventDefault();
@@ -138,8 +149,6 @@ const AdminDashboard = () => {
     // setNewStudent({ name: "", email: "", department: "cs", wishlist: [] });
     // setShowAddForm(false);
   };
-
-
 
   const renderActiveTab = () => {
     switch (activeTab) {
