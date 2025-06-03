@@ -27,7 +27,7 @@ const Header = () => {
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Dashboard", path: isAdmin ? "/admin/dashboard" : "/dashboard" },
-    { name: "Departments", path: "/departments" },
+    { name: "Announcments", path: "/announcments" },
     { name: "Projects", path: "/projects" },
     ...(session.status === "authenticated" && !isAdmin
       ? [{ name: "Profile", path: "/profile" }]

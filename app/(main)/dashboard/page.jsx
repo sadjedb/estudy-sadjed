@@ -24,6 +24,9 @@ import {
   FaCalculator,
   FaAtom,
   FaFlask,
+  FaClipboardList,
+  FaUserGraduate,
+  FaCalendarAlt,
 } from "react-icons/fa";
 import Link from "next/link";
 import withAuth from "@/lib/utils/withAuth";
@@ -39,53 +42,91 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-
-const DEPARTMENTS = [
-  { name: "Computer Science", icon: <FaLaptopCode />, projects: 15 },
-  { name: "Mathematics", icon: <FaCalculator />, projects: 8 },
-  { name: "Physics", icon: <FaAtom />, projects: 12 },
-  { name: "Chemistry", icon: <FaFlask />, projects: 10 },
-];
+import useMarks from "@/hooks/useMarks";
+import { useSession } from "next-auth/react";
 
 const CourseCard = ({ course }) => (
-  <Card className="group transition-all hover:shadow-lg hover:border-primary">
-    <CardHeader>
-      <CardTitle className="text-lg">{course.title}</CardTitle>
-      <CardDescription className="flex justify-between">
-        <span>{course.code}</span>
-        <span className="font-medium">{course.instructor}</span>
-      </CardDescription>
-    </CardHeader>
-    <CardContent>
-      <div className="mt-4">
-        <div className="flex justify-between mb-1 text-sm text-muted-foreground">
-          <span>Progress</span>
-          <span>{33}%</span>
-        </div>
-        <Progress value={33} className="h-2" />
-      </div>
-    </CardContent>
-    <CardFooter>
-      <Link href={`dashboard/courses/${course.code}`} className="w-full">
-        <Button className="w-full" variant="outline">
-          Continue Learning
-        </Button>
-      </Link>
-    </CardFooter>
-  </Card>
-);
+  <Card className="group border border-gray-200 bg-white hover:border-primary/50 hover:shadow-md transition-all duration-300 overflow-hidden">
+    <div className="relative">
+      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-primary/5 to-transparent opacity-0  transition-opacity duration-300" />
 
-const DepartmentCard = ({ department }) => (
-  <Card className="hover:shadow-md transition-shadow">
-    <CardContent className="pt-6 flex flex-col items-center text-center">
-      <div className="mb-4 text-4xl text-gray-600">{department.icon}</div>
-      <h3 className="font-semibold mb-2">{department.name}</h3>
-      <p className="text-gray-500">{department.projects} active projects</p>
-    </CardContent>
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg font-semibold text-gray-900">
+            {course.title}
+          </CardTitle>
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+            {course.code}
+          </span>
+        </div>
+        <CardDescription className="pt-1 text-gray-600">
+          <div className="flex items-center gap-1.5">
+            <FaUserGraduate className="h-3.5 w-3.5 opacity-70" />
+            <span>{course.instructor}</span>
+          </div>
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent className="py-2">
+        <div className="flex flex-wrap gap-2 mb-3">
+          <Badge
+            variant="outline"
+            className="flex items-center gap-1.5 border-gray-200"
+          >
+            <FaCalendarAlt className="h-3 w-3 text-gray-500" />
+            {course.schedule}
+          </Badge>
+          <Badge
+            variant="outline"
+            className="flex items-center gap-1.5 border-gray-200"
+          >
+            <FaBook className="h-3 w-3 text-gray-500" />
+            {course.credits} Credits
+          </Badge>
+        </div>
+      </CardContent>
+
+      <CardFooter className="pt-0">
+        <Link href={`/dashboard/courses/${course.code}`} className="w-full z-0">
+          <Button className="w-full" variant="outline">
+            <div className="flex items-center gap-2">
+              <span>Continue Learning</span>
+              <FaChevronRight className="h-3.5 w-3.5 opacity-70 group-hover:translate-x-1 transition-transform" />
+            </div>
+          </Button>
+        </Link>
+      </CardFooter>
+    </div>
   </Card>
 );
 
 const Dashboard = () => {
+  const session = useSession();
+  const [marks, setMarks] = useState([]);
+  const {
+    data: marksData,
+    loading: marksLoading,
+    statusCode: marksStatusCode,
+  } = useMarks(session?.data?.user?.id);
+  console.log(session?.data?.user?.id + "marksData", marksData);
+  useEffect(() => {
+    if (marksData?.marks && Array.isArray(marksData?.marks)) {
+      setMarks(
+        marksData.marks.map((item) => ({
+          id: item.mark_id,
+          student_module_id: item.student_module_id,
+          module_id: item.module_id,
+          title: item.title,
+          year: item.year,
+          score: item.score,
+          td_score: item.td_score,
+          tp_score: item.tp_score,
+        }))
+      );
+    }
+  }, [marksData]);
+  console.log("Marks:", marks);
+
   const [projects, setProjects] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [courses, setCourses] = useState([]);
@@ -94,27 +135,6 @@ const Dashboard = () => {
     file: null,
     note: "",
   });
-
-  const examGrades = [
-    {
-      id: 1,
-      course: "Machine Learning",
-      examType: "Final Exam",
-      score: 14,
-    },
-    {
-      id: 2,
-      course: "Database Systems",
-      examType: "Final Exam",
-      score: 18,
-    },
-    {
-      id: 3,
-      course: "Algorithms",
-      examType: "Midterm",
-      score: 16,
-    },
-  ];
 
   const formatGrade = (score) => {
     return Number.isInteger(score) ? score : score.toFixed(1);
@@ -210,6 +230,68 @@ const Dashboard = () => {
       </div>
     );
   }
+  const getProjectStatusColor = (status) => {
+    switch (status) {
+      case "in progress":
+        return {
+          bg: "bg-blue-100/80",
+          text: "text-blue-600",
+          badge: "bg-blue-100 text-blue-800",
+        };
+      case "pending review":
+        return {
+          bg: "bg-amber-100/80",
+          text: "text-amber-600",
+          badge: "bg-amber-100 text-amber-800",
+        };
+      case "completed":
+        return {
+          bg: "bg-green-100/80",
+          text: "text-green-600",
+          badge: "bg-green-100 text-green-800",
+        };
+      default:
+        return {
+          bg: "bg-gray-100/80",
+          text: "text-gray-600",
+          badge: "bg-gray-100 text-gray-800",
+        };
+    }
+  };
+
+  const getProgressColor = (progress) => {
+    if (progress >= 80) return "bg-green-500";
+    if (progress >= 50) return "bg-blue-500";
+    if (progress >= 30) return "bg-amber-500";
+    return "bg-red-500";
+  };
+
+  const getGradeColor = (percentage) => {
+    if (percentage >= 85)
+      return {
+        bg: "bg-green-100",
+        text: "text-green-700",
+        progress: "bg-green-500",
+      };
+    if (percentage >= 70)
+      return {
+        bg: "bg-blue-100",
+        text: "text-blue-700",
+        progress: "bg-blue-500",
+      };
+    if (percentage >= 50)
+      return {
+        bg: "bg-amber-100",
+        text: "text-amber-700",
+        progress: "bg-amber-500",
+      };
+    return {
+      bg: "bg-red-100",
+      text: "text-red-700",
+      progress: "bg-red-500",
+    };
+  };
+
   const dashboardSections = {
     courses: (
       <section className="space-y-4">
@@ -232,96 +314,241 @@ const Dashboard = () => {
       </section>
     ),
     announcements: (
-      <Card>
-        <CardHeader className="flex flex-row items-center space-x-2">
-          <FaBell className="w-5 h-5 text-gray-600" />
-          <CardTitle>New Announcements</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {announcements.map((announcement) => (
-              <div
-                key={announcement.id}
-                className="flex justify-between items-center border-b pb-2 last:border-b-0"
-              >
-                <span>{announcement.title}</span>
-                {announcement.urgent && (
-                  <Badge variant="destructive">Urgent</Badge>
-                )}
-              </div>
-            ))}
+      <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 rounded-full bg-blue-100/80">
+              <FaBell className="w-5 h-5 text-gray-600" />
+            </div>
+            <CardTitle className="text-lg font-semibold text-gray-800">
+              Announcements
+            </CardTitle>
           </div>
-        </CardContent>
-      </Card>
-    ),
-    projects: (
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <CardTitle className="flex items-center gap-2">
-            <FaListAlt className="text-muted-foreground" />
-            <span>Active Projects</span>
-          </CardTitle>
+          <Badge
+            variant="outline"
+            className="border-blue-200 bg-gray-100/50 text-gray-600"
+          >
+            {announcements.length} New
+          </Badge>
         </CardHeader>
         <CardContent className="space-y-4">
-          {projects.map((project) => (
+          {announcements.map((announcement) => (
             <div
-              key={project.id}
-              className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent transition-colors"
+              key={announcement.id}
+              className="group relative p-3 rounded-lg bg-white/90 backdrop-blur-sm border border-gray-100 hover:border-gray-200 transition-all duration-200 cursor-pointer hover:shadow-sm"
             >
-              <div className="flex items-center gap-3">
-                <div className="bg-primary/10 p-2 rounded-lg">
-                  <FaBook className="text-primary h-5 w-5" />
+              <div className="flex justify-between items-start">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-medium text-gray-900 truncate">
+                    {announcement.title}
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                    {announcement.content}
+                  </p>
                 </div>
-                <div>
-                  <p className="font-medium">{project.title}</p>
-                </div>
+                {announcement.urgent === 1 && (
+                  <Badge
+                    variant="destructive "
+                    className="ml-2 flex-shrink-0 !bg-red-100 !text-red-800 !border-red-200"
+                  >
+                    Urgent
+                  </Badge>
+                )}
               </div>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => handleSubmitWork(project.id)}
-              >
-                <FaUpload className="mr-2 h-4 w-4" /> Submit
-              </Button>
+              <div className="flex items-center mt-2 space-x-2">
+                <span className="text-xs text-gray-400">
+                  {new Date(announcement.datetime).toLocaleDateString()}
+                </span>
+                <span className="text-xs px-2 py-1 bg-blue-50 text-gray-600 rounded-full">
+                  {announcement.category}
+                </span>
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
             </div>
           ))}
         </CardContent>
+        <CardFooter className="pt-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-gray-600 hover:text-gray-800 w-full hover:bg-blue-50"
+          >
+            View All Announcements
+            <FaChevronRight className="ml-1 h-3 w-3" />
+          </Button>
+        </CardFooter>
+      </Card>
+    ),
+    projects: (
+      <Card className="shadow-sm hover:shadow-md transition-all duration-300">
+        <CardHeader className="flex flex-row items-center justify-between pb-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg ">
+              <FaListAlt className="w-5 h-5 text-gray-600" />
+            </div>
+            <CardTitle className="text-lg font-semibold text-gray-800">
+              Active Projects
+            </CardTitle>
+          </div>
+          <Badge
+            variant="outline"
+            className="border-gray-200 bg-gray-100/50 text-gray-600"
+          >
+            {projects.length} Ongoing
+          </Badge>
+        </CardHeader>
+
+        <CardContent className="space-y-3">
+          {projects.map((project) => (
+            <div
+              key={project.id}
+              className="group relative p-4 rounded-xl bg-white/90 backdrop-blur-sm border border-gray-100 hover:border-gray-200 transition-all duration-200 cursor-pointer hover:shadow-xs"
+            >
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div
+                    className={`p-3 rounded-lg ${
+                      getProjectStatusColor(project.status).bg
+                    }`}
+                  >
+                    <FaBook
+                      className={`w-5 h-5 ${
+                        getProjectStatusColor(project.status).text
+                      }`}
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-gray-900 truncate">
+                      {project.title}
+                    </h3>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span
+                        className={`text-xs px-2 py-1 rounded-full ${
+                          getProjectStatusColor(project.status).badge
+                        }`}
+                      >
+                        {project.status}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        Due: {new Date(project.dueDate).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="group-hover:bg-gray-50 group-hover:border-gray-200 group-hover:text-gray-600 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSubmitWork(project.id);
+                  }}
+                >
+                  <FaUpload className="mr-2 h-3.5 w-3.5" />
+                  Submit Work
+                </Button>
+              </div>
+
+              {project.progress && (
+                <div className="mt-3">
+                  <div className="flex justify-between text-xs text-gray-500 mb-1">
+                    <span>Progress</span>
+                    <span>{project.progress}%</span>
+                  </div>
+                  <div className="w-full bg-gray-100 rounded-full h-1.5">
+                    <div
+                      className={`h-1.5 rounded-full ${getProgressColor(
+                        project.progress
+                      )}`}
+                      style={{ width: `${project.progress}%` }}
+                    ></div>
+                  </div>
+                </div>
+              )}
+
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
+            </div>
+          ))}
+        </CardContent>
+
+        <CardFooter className="pt-0">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-gray-600 hover:text-gray-800 w-full hover:bg-gray-50"
+          >
+            View All Projects
+            <FaChevronRight className="ml-1 h-3.5 w-3.5" />
+          </Button>
+        </CardFooter>
       </Card>
     ),
     grades: (
-      <Card>
+      <Card className="border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow duration-300">
         <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <CardTitle className="flex items-center gap-2">
-            <FaChartLine className="text-muted-foreground" />
-            <span>My Exam Grades</span>
-          </CardTitle>
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-gray-100">
+              <FaChartLine className="w-5 h-5 text-gray-600" />
+            </div>
+            <CardTitle className="text-lg font-semibold text-gray-800">
+              My Exam Grades
+            </CardTitle>
+          </div>
           <Link href="/dashboard/grades">
-            <Button variant="outline" size="sm">
-              View Full Transcript <FaChevronRight className="ml-1" />
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-gray-200 hover:bg-gray-50 hover:border-gray-300 text-gray-700"
+            >
+              View Full Transcript
+              <FaChevronRight className="ml-1.5 h-3 w-3" />
             </Button>
           </Link>
         </CardHeader>
+
         <CardContent className="space-y-4">
-          {examGrades.slice(0, 2).map((exam) => {
+          {marks.slice(0, 2).map((exam) => {
+            const gradePercentage = (exam.score / 20) * 100;
             return (
               <div
                 key={exam.id}
-                className="flex items-center justify-between p-3 border rounded-lg hover:bg-accent transition-colors"
+                className="group relative p-4 rounded-xl border border-gray-100 hover:border-gray-200 bg-white transition-all duration-200"
               >
-                <div className="flex items-center gap-3">
-                  <div>
-                    <h3 className="font-medium">{exam.course}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {exam.examType}
-                    </p>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`p-2 rounded-lg ${
+                        getGradeColor(gradePercentage).bg
+                      }`}
+                    >
+                      <FaClipboardList
+                        className={`w-5 h-5 ${
+                          getGradeColor(gradePercentage).text
+                        }`}
+                      />
+                    </div>
+                    <div>
+                      <h3 className="font-medium text-gray-900">
+                        {exam.title}
+                      </h3>
+                      <p className="text-sm text-gray-500">Final Exam</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`text-xl font-bold ${
+                        getGradeColor(gradePercentage).text
+                      }`}
+                    >
+                      {formatGrade(exam.score)}
+                    </div>
+                    <div className="text-gray-400">/ 20</div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="text-xl font-bold">
-                    {formatGrade(exam.score)}
-                  </div>
-                  <div className="text-muted-foreground">/ 20</div>
-                </div>
+
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
               </div>
             );
           })}
@@ -390,7 +617,7 @@ const Dashboard = () => {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <header>
-        <h1 className="text-3xl font-bold">Welcome back, John!</h1>
+        <h1 className="text-3xl font-bold">Welcome back ! </h1>
       </header>
       {[
         <React.Fragment key="courses">

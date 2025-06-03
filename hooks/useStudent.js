@@ -32,19 +32,19 @@ const useStudent = (studentId) => {
         const result = await response.json();
         const parsedResult = Array.isArray(result.students)
           ? {
-            ...result,
-            students: result.students.map(student => ({
-              ...student,
-              // Parse any stringified arrays in student object
-              wishlist: typeof student.wishlist === 'string'
-                ? JSON.parse(student.wishlist)
-                : student.wishlist
-            }))
-          }
+              ...result,
+              students: result.students.map((student) => ({
+                ...student,
+                wishlist:
+                  typeof student.wishlist === "string"
+                    ? JSON.parse(student.wishlist)
+                    : student.wishlist,
+              })),
+            }
           : result;
         setData(parsedResult);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
@@ -57,9 +57,9 @@ const useStudent = (studentId) => {
     setLoading(true);
     try {
       const response = await fetch(url, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(student),
       });
@@ -69,11 +69,11 @@ const useStudent = (studentId) => {
         ...prevData,
         students: [
           ...(prevData?.students || []),
-          { ...student, id: result.studentId }
-        ]
+          { ...student, id: result.studentId },
+        ],
       }));
     } catch (error) {
-      console.error('Error adding student:', error);
+      console.error("Error adding student:", error);
     } finally {
       setLoading(false);
     }

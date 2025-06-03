@@ -12,7 +12,7 @@ const StudentTableRow = ({ student, projects }) => {
     statusCode: marksStatusCode,
     addOrUpdateMark,
   } = useMarks(student?.id);
-
+  console.log(student?.id + "marksData", marksData);
   // Use marksData from the hook if available
   useEffect(() => {
     if (marksData?.marks && Array.isArray(marksData?.marks)) {
@@ -21,7 +21,7 @@ const StudentTableRow = ({ student, projects }) => {
           id: item.mark_id,
           student_module_id: item.student_module_id,
           module_id: item.module_id,
-          title: item.title, // Add title from response
+          title: item.title,
           year: item.year,
           score: item.score,
           td_score: item.td_score,
@@ -120,7 +120,11 @@ const StudentTableRow = ({ student, projects }) => {
                         className="w-full p-2 border rounded"
                         value={mark.score ?? ""}
                         onChange={(e) =>
-                          handleMarkChange(mark.student_module_id, "score", e.target.value)
+                          handleMarkChange(
+                            mark.student_module_id,
+                            "score",
+                            e.target.value
+                          )
                         }
                       />
                     </div>
@@ -133,7 +137,11 @@ const StudentTableRow = ({ student, projects }) => {
                         className="w-full p-2 border rounded"
                         value={mark.td_score ?? ""}
                         onChange={(e) =>
-                          handleMarkChange(mark.student_module_id, "td_score", e.target.value)
+                          handleMarkChange(
+                            mark.student_module_id,
+                            "td_score",
+                            e.target.value
+                          )
                         }
                       />
                     </div>
@@ -146,7 +154,11 @@ const StudentTableRow = ({ student, projects }) => {
                         className="w-full p-2 border rounded"
                         value={mark.tp_score ?? ""}
                         onChange={(e) =>
-                          handleMarkChange(mark.student_module_id, "tp_score", e.target.value)
+                          handleMarkChange(
+                            mark.student_module_id,
+                            "tp_score",
+                            e.target.value
+                          )
                         }
                       />
                     </div>

@@ -17,53 +17,52 @@ import {
 import { Button } from "@/components/ui/button";
 import { FaChevronLeft, FaChartLine } from "react-icons/fa";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import useMarks from "@/hooks/useMarks";
+import { useSession } from "next-auth/react";
 
 const page = () => {
-  const grades = [
-    {
-      id: 1,
-      course: "Machine Learning",
-      coef: 1,
-      score: 18,
-      td_score: 17,
-      tp_score: 19,
-    },
-    {
-      id: 2,
-      course: "Database Systems",
-      coef: 2,
-      score: 17,
-      td_score: 16,
-      tp_score: 18,
-    },
-    {
-      id: 3,
-      course: "Algorithms",
-      coef: 3,
-      score: 16,
-      td_score: 15,
-      tp_score: 17,
-    },
-    {
-      id: 4,
-      course: "Computer Networks",
-      coef: 3,
-      score: 14,
-      td_score: 15,
-      tp_score: 13,
-    },
-  ];
+  const session = useSession();
+  console.log("Session Data In Student:", session);
+
+  const [marks, setMarks] = useState([]);
+  const {
+    data: marksData,
+    loading: marksLoading,
+    statusCode: marksStatusCode,
+  } = useMarks(session?.data?.user?.id);
+  console.log(session?.data?.user?.id + "marksData", marksData);
+  useEffect(() => {
+    if (marksData?.marks && Array.isArray(marksData?.marks)) {
+      setMarks(
+        marksData.marks.map((item) => ({
+          id: item.mark_id,
+          student_module_id: item.student_module_id,
+          module_id: item.module_id,
+          title: item.title,
+          year: item.year,
+          score: item.score,
+          td_score: item.td_score,
+          tp_score: item.tp_score,
+        }))
+      );
+    }
+  }, [marksData]);
 
   const averageScore =
-    grades.reduce((acc, curr) => acc + curr.score, 0) / grades.length;
-  const highestScore = Math.max(...grades.map((g) => g.score));
-  const totalWeightedMoy = grades.reduce((acc, grade) => {
+    marks.reduce((acc, curr) => acc + curr.score, 0) / marks.length;
+  const highestScore = Math.max(...marks.map((g) => g.score));
+  const totalWeightedMoy = marks.reduce((acc, grade) => {
     const moduleMoy =
       ((grade.td_score + grade.tp_score) / 2) * 0.4 + grade.score * 0.6;
-    return acc + moduleMoy * grade.coef;
+    return acc + moduleMoy * (grade.coef === NaN ? grade.coef : 1);
   }, 0);
-  const totalCoef = grades.reduce((acc, grade) => acc + grade.coef, 0);
+  const totalCoef = marks.reduce(
+    (acc, marks) => (acc + marks.coef === NaN ? 1 : 1),
+    0
+  );
   const moyenneDeSemester = totalWeightedMoy / totalCoef;
+
   return (
     <div className="container mx-auto p-4 space-y-6">
       <div className="flex items-center justify-between">
@@ -101,7 +100,7 @@ const page = () => {
               {highestScore}
             </div>
             <p className="text-xs text-muted-foreground">
-              in {grades.find((g) => g.score === highestScore)?.course}
+              in {marks.find((g) => g.score === highestScore)?.course}
             </p>
           </CardContent>
         </Card>
@@ -140,10 +139,10 @@ const page = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {grades.map((grade) => (
-                <TableRow key={grade.id}>
-                  <TableCell className="font-medium">{grade.course}</TableCell>
-                  <TableCell>{grade.coef}</TableCell>
+              {marks.map((grade) => (
+                <TableRow key={grade.mark_id}>
+                  <TableCell className="font-medium">{grade.title}</TableCell>
+                  <TableCell>{grade.coef || 1}</TableCell>
                   <TableCell>
                     <span className="font-medium">{grade.td_score}</span>
                     <span className="text-xs text-muted-foreground">/20</span>
