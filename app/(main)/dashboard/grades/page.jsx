@@ -131,11 +131,11 @@ const page = () => {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[200px]">Course</TableHead>
-                <TableHead>Coeficient</TableHead>
+                <TableHead>Coef</TableHead>
                 <TableHead>TD</TableHead>
                 <TableHead>TP</TableHead>
                 <TableHead>Final</TableHead>
-                <TableHead>Module Moyene</TableHead>
+                <TableHead>Moy</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -157,8 +157,10 @@ const page = () => {
                   </TableCell>
                   <TableCell>
                     <span className="font-medium">
-                      {((grade.td_score + grade.tp_score) / 2) * 0.4 +
-                        grade.score * 0.6}
+                      {(
+                        ((grade.td_score + grade.tp_score) / 2) * 0.4 +
+                        grade.score * 0.6
+                      ).toFixed(2)}
                     </span>
                     <span className="text-xs text-muted-foreground">/20</span>
                   </TableCell>
