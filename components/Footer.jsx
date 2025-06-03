@@ -17,7 +17,7 @@ const Footer = () => {
     {
       title: "About",
       links: [
-        { label: "Department", href: "/departments" },
+        { label: "Department", href: "#DepartmentsSection" },
         { label: "Projects", href: "/projects" },
       ],
     },

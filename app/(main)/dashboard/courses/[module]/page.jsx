@@ -237,7 +237,6 @@ const MaterialsDialog = ({ isOpen, onClose, selectedWeek }) => (
 const ModuleDetailPage = () => {
   const router = useRouter();
   const params = useParams();
-  const pathname = usePathname();
   const [selectedWeek, setSelectedWeek] = useState(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -248,7 +247,6 @@ const ModuleDetailPage = () => {
   const {
     data: modulesData,
     loading: modulesLoading,
-    error: modulesError,
     getModuleById,
   } = useModule();
 

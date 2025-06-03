@@ -617,7 +617,7 @@ const Dashboard = () => {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <header>
-        <h1 className="text-3xl font-bold">Welcome back, John!</h1>
+        <h1 className="text-3xl font-bold">Welcome back ! </h1>
       </header>
       {[
         <React.Fragment key="courses">
