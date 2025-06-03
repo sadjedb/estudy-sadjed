@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const useStudent = () => {
+const useStudent = (studentId) => {
   const url = "/api/students";
   const method = "GET";
   const body = null;
@@ -23,7 +23,10 @@ const useStudent = () => {
           options.body = JSON.stringify(body);
         }
 
-        const response = await fetch(url, options);
+        // If studentId exists, fetch a specific student
+        const fetchUrl = studentId ? `${url}?id=${studentId}` : url;
+
+        const response = await fetch(fetchUrl, options);
 
         setStatusCode(response.status);
         const result = await response.json();
@@ -48,7 +51,7 @@ const useStudent = () => {
     };
 
     fetchData();
-  }, []);
+  }, [studentId]);
 
   const addStudent = async (student) => {
     setLoading(true);
@@ -99,7 +102,42 @@ const useStudent = () => {
     }
   };
 
-  return { loading, data, statusCode, addStudent, removeStudent };
+  const editInfo = async ({ bio, phone }) => {
+    setLoading(true);
+    try {
+      const response = await fetch(url, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          studentId,
+          type: "info",
+          data: { bio, phone }
+        }),
+      });
+      setStatusCode(response.status);
+      if (response.ok) {
+        setData((prevData) => {
+          if (!prevData || !prevData.student) return prevData;
+          return {
+            ...prevData,
+            student: {
+              ...prevData.student,
+              bio: bio !== undefined ? bio : prevData.student.bio,
+              phone: phone !== undefined ? phone : prevData.student.phone,
+            },
+          };
+        });
+      }
+    } catch (error) {
+      console.error("Error updating student info:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { loading, data, statusCode, addStudent, removeStudent, editInfo };
 };
 
 export default useStudent;

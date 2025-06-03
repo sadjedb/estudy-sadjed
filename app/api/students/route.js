@@ -35,6 +35,25 @@ export async function POST(request) {
         return new Response(JSON.stringify({ message: "Failed to add/update student", status: 500 }), { status: 500 });
     }
 }
+export async function PATCH(request) {
+    const body = await request.json();
+    const { studentId, type, data } = body;
+
+    try {
+        let success = false;
+        if (type === "info") {
+            success = await studentService.updateStudentInfo(studentId, data);
+        }
+        if (success) {
+            return new Response(JSON.stringify({ message: "Student updated", status: 200 }));
+        } else {
+            return new Response(JSON.stringify({ message: "Student not found", status: 404 }), { status: 404 });
+        }
+    } catch (error) {
+        console.error("Error updating student:", error);
+        return new Response(JSON.stringify({ message: "Failed to update student", status: 500 }), { status: 500 });
+    }
+}
 
 export async function DELETE(request) {
     const { studentId } = await request.json();

@@ -5,28 +5,11 @@ import Link from "next/link";
 import { FaUser, FaTasks, FaRegBookmark } from "react-icons/fa";
 import useWhishlist from "@/hooks/useWhishlist";
 import { useSession } from "next-auth/react";
+import useStudent from "@/hooks/useStudent";
 
 const Page = () => {
   const session = useSession();
-  const [student, setStudent] = useState({
-    name: "Gamar Benchkiberdo",
-    major: "Software Engineering",
-    year: "3rd Year",
-    bio: "Passionate about full-stack development and AI integration. Looking for collaborative projects in web development.",
-    contactInfo: {
-      email: "gamar@example.com",
-      phone: "+1234567890",
-    },
-    //     id: 1,
-    //     title: "Blockchain Voting System",
-    //     department: "Computer Science",
-    //     status: "In Progress",
-    //     student: " Ahmed Hassan",
-    //     supervisor: "Prof. Michael Chen",
-    //     description:
-    //       "Developing an intelligent task manager with NLP-based natural language input",
-    //     date: "15 May 2025",
-  });
+  const { data: studentData, loading: studentLoading, editInfo } = useStudent(session?.data?.user?.id)
   const [projects, setProjects] = useState([]);
   const { data: projectsData, loading: projectsLoading, removeFromWhishlist } = useWhishlist(session?.data?.user?.id);
   useEffect(() => {
@@ -36,31 +19,24 @@ const Page = () => {
   }, [projectsData]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editBio, setEditBio] = useState("");
-  const [editContactInfo, setEditContactInfo] = useState({
-    email: "",
-    phone: "",
-  });
+  const [editContactInfo, setEditContactInfo] = useState("");
 
   const handleEditClick = () => {
-    setEditBio(student.bio);
-    setEditContactInfo(student.contactInfo);
+    setEditBio(studentData?.student?.bio || "");
+    setEditContactInfo(studentData?.student?.phone || "");
     setIsEditModalOpen(true);
   };
 
-  const handleSave = () => {
-    setStudent((prev) => ({
-      ...prev,
+  const handleSave = async () => {
+    await editInfo({
       bio: editBio,
-      contactInfo: editContactInfo,
-    }));
+      phone: editContactInfo,
+    });
     setIsEditModalOpen(false);
   };
 
   const removeProject = async (projectId) => {
     await removeFromWhishlist(projectId);
-    // setProjects((prev) => ({
-    //   ...prev.projects.filter((proj) => proj.id !== projectId),
-    // }));
   };
 
   return (
@@ -78,15 +54,15 @@ const Page = () => {
               <div className="flex justify-between items-start">
                 <div>
                   <h1 className="text-2xl font-bold text-gray-800">
-                    {student.name}
+                    {studentData?.student?.first_name} {studentData?.student?.last_name}
                   </h1>
                   <div className="flex items-center gap-2 text-gray-600 mt-1">
                     <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm">
-                      {student.major}
+                      {studentData?.student?.department?.toUpperCase()}
                     </span>
-                    <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm">
-                      {student.year}
-                    </span>
+                    {/* <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-sm">
+                      {studentData?.student?.year} Year
+                    </span> */}
                   </div>
                 </div>
                 <button
@@ -96,13 +72,13 @@ const Page = () => {
                   Edit Profile
                 </button>
               </div>
-              <p className="text-gray-600 mt-3">{student.bio}</p>
+              <p className="text-gray-600 mt-3">{studentData?.student?.bio}</p>
               <div className="mt-3 space-y-1">
-                <p className="text-sm text-gray-600">
+                {/* <p className="text-sm text-gray-600">
                   📧 {student.contactInfo.email}
-                </p>
+                </p> */}
                 <p className="text-sm text-gray-600">
-                  📱 {student.contactInfo.phone}
+                  📱 {studentData?.student?.phone}
                 </p>
               </div>
             </div>
@@ -192,7 +168,7 @@ const Page = () => {
                   rows="4"
                 />
               </div>
-              <div>
+              {/* <div>
                 <label className="block text-sm font-medium mb-1">Email</label>
                 <input
                   type="email"
@@ -205,17 +181,14 @@ const Page = () => {
                   }
                   className="w-full p-2 border rounded-lg"
                 />
-              </div>
+              </div> */}
               <div>
                 <label className="block text-sm font-medium mb-1">Phone</label>
                 <input
                   type="tel"
-                  value={editContactInfo.phone}
+                  value={editContactInfo}
                   onChange={(e) =>
-                    setEditContactInfo({
-                      ...editContactInfo,
-                      phone: e.target.value,
-                    })
+                    setEditContactInfo(e.target.value)
                   }
                   className="w-full p-2 border rounded-lg"
                 />
