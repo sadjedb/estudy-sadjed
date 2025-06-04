@@ -537,7 +537,7 @@ const ModuleManagement = () => {
         </Card>
       </div>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Delete Confirmation Dialoggg */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
