@@ -41,7 +41,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import useMarks from "@/hooks/useMarks";
 import { useSession } from "next-auth/react";
 
@@ -136,7 +135,7 @@ const Dashboard = () => {
 
   const formatGrade = (score) => {
     if (typeof score !== "number") return "N/A";
-    return Number.isInteger(score) ? score : score?.toFixed(1);
+    return Number.isInteger(score) ? score : score.toFixed(1);
   };
 
   const {
@@ -348,9 +347,6 @@ const Dashboard = () => {
                 <span className="text-xs text-gray-400">
                   {new Date(announcement.datetime).toLocaleDateString()}
                 </span>
-                <span className="text-xs px-2 py-1 bg-blue-50 text-gray-600 rounded-full">
-                  {announcement.category}
-                </span>
               </div>
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
             </div>
@@ -408,17 +404,6 @@ const Dashboard = () => {
                     <h3 className="font-medium text-gray-900 truncate">
                       {project.title}
                     </h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span
-                        className={`text-xs px-2 py-1 rounded-full ${getProjectStatusColor(project.status).badge
-                          }`}
-                      >
-                        {project.status}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        Due: {new Date(project.dueDate).toLocaleDateString()}
-                      </span>
-                    </div>
                   </div>
                 </div>
 
@@ -598,26 +583,20 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <header>
-        <h1 className="text-3xl font-bold">Welcome back ! </h1>
+    <div className="container mx-auto p-4 sm:p-6 md:p-8 space-y-6 w-full min-h-screen">
+      <header className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <h1 className="text-2xl sm:text-3xl font-bold">Welcome back ! </h1>
       </header>
-      {[
-        <React.Fragment key="courses">
-          {dashboardSections.courses}
-        </React.Fragment>,
-        <div className="grid md:grid-cols-3 gap-6" key="cards">
+      <div className="space-y-8">
+        <div>{dashboardSections.courses}</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {dashboardSections.announcements}
           {dashboardSections.projects}
           {dashboardSections.grades}
-        </div>,
-        <React.Fragment key="departments">
-          {dashboardSections.departments}
-        </React.Fragment>,
-        <React.Fragment key="modal">
-          {dashboardSections.projectSubmissionModal}
-        </React.Fragment>,
-      ]}
+        </div>
+        {dashboardSections.departments}
+        {dashboardSections.projectSubmissionModal}
+      </div>
     </div>
   );
 };
