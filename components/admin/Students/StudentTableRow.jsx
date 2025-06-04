@@ -12,7 +12,6 @@ const StudentTableRow = ({ student, projects }) => {
     statusCode: marksStatusCode,
     addOrUpdateMark,
   } = useMarks(student?.id);
-  console.log(student?.id + "marksData", marksData);
   // Use marksData from the hook if available
   useEffect(() => {
     if (marksData?.marks && Array.isArray(marksData?.marks)) {

@@ -25,7 +25,6 @@ const StudentForm = ({
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  console.log(modules)
 
   useEffect(() => {
     setFormData({

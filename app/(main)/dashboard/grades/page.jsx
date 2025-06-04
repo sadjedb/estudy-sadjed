@@ -23,7 +23,6 @@ import { useSession } from "next-auth/react";
 
 const page = () => {
   const session = useSession();
-  console.log("Session Data In Student:", session);
 
   const [marks, setMarks] = useState([]);
   const {
@@ -31,7 +30,6 @@ const page = () => {
     loading: marksLoading,
     statusCode: marksStatusCode,
   } = useMarks(session?.data?.user?.id);
-  console.log(session?.data?.user?.id + "marksData", marksData);
   useEffect(() => {
     if (marksData?.marks && Array.isArray(marksData?.marks)) {
       setMarks(

@@ -89,7 +89,6 @@ const UrgentAnnouncement = () => {
       setUrgentAnnouncements(urgent);
     }
   }, [announcementsData]);
-  console.log(urgentAnnouncements);
 
   //   if (loadingAnnouncements) {
   //     return <div>loading</div>;
@@ -108,9 +107,8 @@ const UrgentAnnouncement = () => {
           {urgentAnnouncements.map((announcement) => (
             <div
               key={announcement.id}
-              className={`bg-white p-6 rounded-xl shadow-sm border-l-4 ${
-                announcement.urgent ? "border-red-500" : "border-blue-500"
-              }`}
+              className={`bg-white p-6 rounded-xl shadow-sm border-l-4 ${announcement.urgent ? "border-red-500" : "border-blue-500"
+                }`}
             >
               <div className="flex justify-between items-start">
                 <h3 className="text-xl font-medium mb-2">
@@ -130,14 +128,14 @@ const UrgentAnnouncement = () => {
               <p className="text-gray-500 text-sm mb-3">
                 {announcement.datetime
                   ? (() => {
-                      const date = new Date(announcement.datetime);
-                      const day = String(date.getDate()).padStart(2, "0");
-                      const month = date.toLocaleString("en-GB", {
-                        month: "long",
-                      });
-                      const year = date.getFullYear();
-                      return `${day} ${month} ${year}`;
-                    })()
+                    const date = new Date(announcement.datetime);
+                    const day = String(date.getDate()).padStart(2, "0");
+                    const month = date.toLocaleString("en-GB", {
+                      month: "long",
+                    });
+                    const year = date.getFullYear();
+                    return `${day} ${month} ${year}`;
+                  })()
                   : ""}
               </p>
               <p className="text-gray-700">{announcement.content}</p>

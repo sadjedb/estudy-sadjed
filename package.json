@@ -41,5 +41,10 @@
     "eslint": "^9",
     "eslint-config-next": "15.2.3",
     "tailwindcss": "^4"
+  },
+  "next": {
+    "experimental": {
+      "turbo": false
+    }
   }
 }

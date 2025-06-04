@@ -1,10 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: [
-      "eng.univ-setif.dz",
-      "ancien-eng.univ-setif.dz",
-      "iceeac23.univ-setif.dz",
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "eng.univ-setif.dz",
+      },
+      {
+        protocol: "https",
+        hostname: "ancien-eng.univ-setif.dz",
+      },
+      {
+        protocol: "https",
+        hostname: "iceeac23.univ-setif.dz",
+      },
     ],
   },
 };

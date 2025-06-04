@@ -30,7 +30,6 @@ const ModuleManagement = () => {
   });
 
   const { data, loading, error, addModule, removeModule } = useModule();
-  console.log("ModuleManagement data", data);
   const handleModuleChange = (e) => {
     const { name, value } = e.target;
     setModuleData({ ...moduleData, [name]: value });
@@ -396,9 +395,8 @@ const ModuleManagement = () => {
               {modules.map((module) => (
                 <div
                   key={module.id}
-                  className={`border p-4 rounded-lg hover:bg-gray-50 ${
-                    editingModuleId === module.id ? "bg-blue-50" : ""
-                  }`}
+                  className={`border p-4 rounded-lg hover:bg-gray-50 ${editingModuleId === module.id ? "bg-blue-50" : ""
+                    }`}
                 >
                   <h3 className="font-bold text-lg">{module.title}</h3>
                   <p className="text-sm text-gray-600">

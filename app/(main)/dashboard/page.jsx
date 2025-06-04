@@ -108,7 +108,6 @@ const Dashboard = () => {
     loading: marksLoading,
     statusCode: marksStatusCode,
   } = useMarks(session?.data?.user?.id);
-  console.log(session?.data?.user?.id + "marksData", marksData);
   useEffect(() => {
     if (marksData?.marks && Array.isArray(marksData?.marks)) {
       setMarks(
@@ -125,7 +124,6 @@ const Dashboard = () => {
       );
     }
   }, [marksData]);
-  console.log("Marks:", marks);
 
   const [projects, setProjects] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
@@ -137,7 +135,8 @@ const Dashboard = () => {
   });
 
   const formatGrade = (score) => {
-    return Number.isInteger(score) ? score : score.toFixed(1);
+    if (typeof score !== "number") return "N/A";
+    return Number.isInteger(score) ? score : score?.toFixed(1);
   };
 
   const {
@@ -155,10 +154,6 @@ const Dashboard = () => {
     loading: modulesLoading,
     error: modulesError,
   } = useModule();
-
-  console.log("Projects Data:", projectsData);
-  console.log("Announcements Data:", announcementsData);
-  console.log("Modules Data:", modulesData);
   useEffect(() => {
     if (projectsData?.projects) {
       setProjects(projectsData.projects.slice(0, 3));
@@ -199,12 +194,6 @@ const Dashboard = () => {
       return;
     }
 
-    console.log("Project submission:", {
-      projectId: selectedProject.id,
-      fileName: submissionData.file.name,
-      fileSize: `${(submissionData.file.size / 1024).toFixed(2)} KB`,
-      note: submissionData.note,
-    });
 
     alert(`Project "${selectedProject.title}" submitted successfully!`);
     setSelectedProject(null);
@@ -407,14 +396,12 @@ const Dashboard = () => {
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <div
-                    className={`p-3 rounded-lg ${
-                      getProjectStatusColor(project.status).bg
-                    }`}
+                    className={`p-3 rounded-lg ${getProjectStatusColor(project.status).bg
+                      }`}
                   >
                     <FaBook
-                      className={`w-5 h-5 ${
-                        getProjectStatusColor(project.status).text
-                      }`}
+                      className={`w-5 h-5 ${getProjectStatusColor(project.status).text
+                        }`}
                     />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -423,9 +410,8 @@ const Dashboard = () => {
                     </h3>
                     <div className="flex items-center gap-2 mt-1">
                       <span
-                        className={`text-xs px-2 py-1 rounded-full ${
-                          getProjectStatusColor(project.status).badge
-                        }`}
+                        className={`text-xs px-2 py-1 rounded-full ${getProjectStatusColor(project.status).badge
+                          }`}
                       >
                         {project.status}
                       </span>
@@ -518,14 +504,12 @@ const Dashboard = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div
-                      className={`p-2 rounded-lg ${
-                        getGradeColor(gradePercentage).bg
-                      }`}
+                      className={`p-2 rounded-lg ${getGradeColor(gradePercentage).bg
+                        }`}
                     >
                       <FaClipboardList
-                        className={`w-5 h-5 ${
-                          getGradeColor(gradePercentage).text
-                        }`}
+                        className={`w-5 h-5 ${getGradeColor(gradePercentage).text
+                          }`}
                       />
                     </div>
                     <div>
@@ -538,9 +522,8 @@ const Dashboard = () => {
 
                   <div className="flex items-center gap-2">
                     <div
-                      className={`text-xl font-bold ${
-                        getGradeColor(gradePercentage).text
-                      }`}
+                      className={`text-xl font-bold ${getGradeColor(gradePercentage).text
+                        }`}
                     >
                       {formatGrade(exam.score)}
                     </div>

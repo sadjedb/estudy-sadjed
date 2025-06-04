@@ -12,7 +12,6 @@ const Footer = () => {
       setIsAdmin(session.data.user.roles.includes("admin"));
     }
   }, [session]);
-  console.log("Session data:", session.data);
   const footerLinks = [
     {
       title: "About",
