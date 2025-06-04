@@ -13,6 +13,7 @@ const Footer = () => {
     }
   }, [session]);
   console.log("Session data:", session.data);
+  //hello
   const footerLinks = [
     {
       title: "About",
