@@ -1,55 +1,111 @@
-import { FiSearch } from "react-icons/fi";
+"use client";
+import { motion } from "framer-motion";
+import { FiSearch, FiPlus } from "react-icons/fi";
 import ProjectTableRow from "./ProjectTableRow";
+import { Input } from "@/components/ui/input";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
-const ProjectList = ({ projects, editMode, enterEditMode, deleteProject }) => {
+const ProjectList = ({
+  projects,
+  editMode,
+  enterEditMode,
+  deleteProject,
+  onAddNew,
+}) => {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredProjects = projects.filter(
+    (project) =>
+      project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      project.supervisor.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Manage Projects</h2>
-        <div className="relative w-64">
-          <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search projects..."
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Title
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Department
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Spots
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Supervisor
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {projects.map((project) => (
-              <ProjectTableRow
-                key={project.id}
-                project={project}
-                editMode={editMode}
-                enterEditMode={enterEditMode}
-                deleteProject={deleteProject}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+    >
+      <Card>
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <CardTitle>Manage Projects</CardTitle>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative">
+              <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search projects..."
+                className="pl-10 w-full sm:w-64"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+            </div>
+            <Button onClick={onAddNew}>
+              <FiPlus className="mr-2" /> New Project
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="rounded-md border overflow-hidden">
+            <table className="w-full">
+              <thead className="bg-muted">
+                <tr>
+                  <th className="px-6 py-3 text-left text-sm font-medium">
+                    Title
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-medium">
+                    Department
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-medium">
+                    Spots
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-medium">
+                    Supervisor
+                  </th>
+                  <th className="px-6 py-3 text-left text-sm font-medium">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {filteredProjects.length > 0 ? (
+                  filteredProjects.map((project, index) => (
+                    <motion.tr
+                      key={project.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                    >
+                      <ProjectTableRow
+                        project={project}
+                        editMode={editMode}
+                        enterEditMode={enterEditMode}
+                        deleteProject={deleteProject}
+                      />
+                    </motion.tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan="5"
+                      className="py-8 text-center text-muted-foreground"
+                    >
+                      {searchTerm
+                        ? "No matching projects found"
+                        : "No projects available"}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 

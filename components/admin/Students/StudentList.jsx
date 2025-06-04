@@ -1,5 +1,17 @@
 import { useState } from "react";
 import { FiSearch } from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import StudentTableRow from "./StudentTableRow";
 
 const StudentList = ({ students = [], projects, loading }) => {
@@ -17,70 +29,65 @@ const StudentList = ({ students = [], projects, loading }) => {
   });
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Student Information</h2>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="space-y-6"
+    >
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+          <CardTitle className="text-xl font-semibold">
+            Student Information
+          </CardTitle>
           <div className="relative w-64">
             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
+            <Input
               type="text"
               placeholder="Search students..."
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-        </div>
-        <div className="overflow-x-auto">
+        </CardHeader>
+        <CardContent>
           {loading ? (
-            <div className="flex justify-center items-center h-32">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div className="flex flex-col space-y-4">
+              {[...Array(5)].map((_, i) => (
+                <Skeleton key={i} className="h-12 w-full" />
+              ))}
             </div>
           ) : (
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    ID
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    First Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Last Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Email
-                  </th>
-                  <th className="py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Department
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Group
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Wishlist
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredStudents.map((student) => (
-                  <StudentTableRow
-                    key={student.id}
-                    student={student}
-                    projects={projects}
-                  />
-                ))}
-              </tbody>
-            </table>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[100px]">ID</TableHead>
+                  <TableHead>First Name</TableHead>
+                  <TableHead>Last Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Department</TableHead>
+                  <TableHead>Group</TableHead>
+                  <TableHead>Wishlist</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <AnimatePresence>
+                  {filteredStudents.map((student) => (
+                    <StudentTableRow
+                      key={student.id}
+                      student={student}
+                      projects={projects}
+                    />
+                  ))}
+                </AnimatePresence>
+              </TableBody>
+            </Table>
           )}
-        </div>
-      </div>
-    </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 

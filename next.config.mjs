@@ -14,6 +14,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "iceeac23.univ-setif.dz",
       },
+      {
+        protocol: "https",
+        hostname: "fontawesome.com",
+      },
     ],
   },
 };

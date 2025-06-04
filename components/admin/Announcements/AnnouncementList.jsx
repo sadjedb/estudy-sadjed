@@ -1,3 +1,5 @@
+"use client";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import AnnouncementItem from "./AnnouncementItem";
 
 const AnnouncementList = ({
@@ -6,25 +8,47 @@ const AnnouncementList = ({
   enterEditMode,
   deleteAnnouncement,
 }) => {
+  const handleDelete = async (id) => {
+    try {
+      await deleteAnnouncement(id);
+      toast({
+        title: "Announcement deleted",
+        description: "The announcement has been successfully removed.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete announcement",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6">
-      <h2 className="text-xl font-semibold mb-4">Current Announcements</h2>
-      <div className="space-y-4">
+    <Card>
+      <CardHeader>
+        <CardTitle>Current Announcements</CardTitle>
+      </CardHeader>
+      <CardContent>
         {announcements.length > 0 ? (
-          announcements.map((announcement) => (
-            <AnnouncementItem
-              key={announcement.id}
-              announcement={announcement}
-              editMode={editMode}
-              enterEditMode={enterEditMode}
-              deleteAnnouncement={deleteAnnouncement}
-            />
-          ))
+          <div className="space-y-4">
+            {announcements.map((announcement) => (
+              <AnnouncementItem
+                key={announcement.id}
+                announcement={announcement}
+                editMode={editMode}
+                enterEditMode={enterEditMode}
+                deleteAnnouncement={handleDelete}
+              />
+            ))}
+          </div>
         ) : (
-          <p className="text-gray-500">No announcements yet</p>
+          <div className="text-center py-8 text-muted-foreground">
+            No announcements have been created yet
+          </div>
         )}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

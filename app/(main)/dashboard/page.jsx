@@ -1,5 +1,11 @@
 "use client";
-import React, { useEffect, useState, useCallback } from "react";
+import React, {
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+} from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -20,14 +26,26 @@ import {
   FaTimes,
   FaListAlt,
   FaChartLine,
-  FaLaptopCode,
-  FaCalculator,
-  FaAtom,
-  FaFlask,
   FaClipboardList,
   FaUserGraduate,
   FaCalendarAlt,
+  FaCheck,
 } from "react-icons/fa";
+import {
+  Loader2,
+  AlertCircle,
+  ChevronDown,
+  ChevronUp,
+  BookOpen,
+  FileText,
+  Award,
+  Clock,
+  TrendingUp,
+  Star,
+  Calendar,
+  Target,
+  Zap,
+} from "lucide-react";
 import Link from "next/link";
 import withAuth from "@/lib/utils/withAuth";
 import useProject from "@/hooks/useProject";
@@ -43,70 +61,129 @@ import {
 } from "@/components/ui/card";
 import useMarks from "@/hooks/useMarks";
 import { useSession } from "next-auth/react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from "sonner";
+import { DialogDescription } from "@radix-ui/react-dialog";
+import useSubmitProject from "@/hooks/useSubmitProject";
 
-const CourseCard = ({ course }) => (
-  <Card className="group border border-gray-200 bg-white hover:border-primary/50 hover:shadow-md transition-all duration-300 overflow-hidden">
-    <div className="relative">
-      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-primary/5 to-transparent opacity-0  transition-opacity duration-300" />
+const CourseCard = ({ course }) => {
+  return (
+    <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-white to-gray-50/50 hover:from-primary/5 hover:to-primary/10 shadow-md hover:shadow-xl transition-all duration-500 transform hover:-translate-y-1">
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full transition-transform duration-1000" />
 
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold text-gray-900">
-            {course.title}
-          </CardTitle>
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-            {course.code}
-          </span>
-        </div>
-        <CardDescription className="pt-1 text-gray-600">
-          <div className="flex items-center gap-1.5">
-            <FaUserGraduate className="h-3.5 w-3.5 opacity-70" />
-            <span>{course.instructor}</span>
+      <CardHeader className="pb-4 relative z-10">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-xl font-bold text-gray-900 line-clamp-2 leading-tight group-hover:text-primary transition-colors">
+              {course.title}
+            </CardTitle>
+            <CardDescription className="pt-2 text-gray-600">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-full bg-primary/10">
+                  <FaUserGraduate className="h-3 w-3 text-primary" />
+                </div>
+                <span className="line-clamp-1 font-medium">
+                  {course.instructor}
+                </span>
+              </div>
+            </CardDescription>
           </div>
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className="py-2">
-        <div className="flex flex-wrap gap-2 mb-3">
           <Badge
             variant="outline"
-            className="flex items-center gap-1.5 border-gray-200"
+            className="bg-gradient-to-r from-primary/10 to-primary/20 border-primary/30 text-primary font-semibold px-3 py-1 shadow-sm"
           >
-            <FaCalendarAlt className="h-3 w-3 text-gray-500" />
+            {course.code}
+          </Badge>
+        </div>
+      </CardHeader>
+
+      <CardContent className="py-3 relative z-10">
+        <div className="flex flex-wrap gap-2 mb-4">
+          <Badge
+            variant="secondary"
+            className="flex items-center gap-1.5 bg-blue-50 text-blue-700 border-blue-200 px-3 py-1"
+          >
+            <Calendar className="h-3 w-3" />
             {course.schedule}
           </Badge>
           <Badge
-            variant="outline"
-            className="flex items-center gap-1.5 border-gray-200"
+            variant="secondary"
+            className="flex items-center gap-1.5 bg-green-50 text-green-700 border-green-200 px-3 py-1"
           >
-            <FaBook className="h-3 w-3 text-gray-500" />
+            <Star className="h-3 w-3" />
             {course.credits} Credits
           </Badge>
         </div>
       </CardContent>
 
-      <CardFooter className="pt-0">
-        <Link href={`/dashboard/courses/${course.code}`} className="w-full z-0">
-          <Button className="w-full" variant="outline">
+      <CardFooter className="pt-2 relative z-10">
+        <Link href={`/dashboard/courses/${course.code}`} className="w-full">
+          <Button
+            variant={"outline"}
+            className="w-full shadow-lg hover:shadow-xl transition-all duration-300 group/btn"
+          >
             <div className="flex items-center gap-2">
-              <span>Continue Learning</span>
-              <FaChevronRight className="h-3.5 w-3.5 opacity-70 group-hover:translate-x-1 transition-transform" />
+              <BookOpen className="h-4 w-4" />
+              <span className="font-semibold">Continue Learning</span>
+              <FaChevronRight className="h-3.5 w-3.5 transition-transform duration-300" />
             </div>
           </Button>
         </Link>
       </CardFooter>
-    </div>
-  </Card>
-);
+    </Card>
+  );
+};
 
 const Dashboard = () => {
   const session = useSession();
   const [marks, setMarks] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [tempSubmissionData, setTempSubmissionData] = useState({
+    file_link: "",
+    note: "",
+  });
+
+  const {
+    submitProject,
+    loading: submitLoading,
+    error: submitError,
+    isSubmittedFor,
+  } = useSubmitProject(session?.data?.user?.id);
+
   const {
     data: marksData,
     loading: marksLoading,
-    statusCode: marksStatusCode,
+    error: marksError,
   } = useMarks(session?.data?.user?.id);
+
+  const {
+    data: projectsData,
+    loading: projectsLoading,
+    error: projectsError,
+  } = useProject();
+
+  const {
+    data: announcementsData,
+    loading: announcementsLoading,
+    error: announcementsError,
+  } = useAnnouncements();
+
+  useEffect(() => {
+    if (announcementsData?.announcments) {
+      setAnnouncements(announcementsData.announcments.slice(0, 4));
+    }
+  }, [announcementsData]);
+
+  const {
+    data: modulesData,
+    loading: modulesLoading,
+    error: modulesError,
+  } = useModule();
+
   useEffect(() => {
     if (marksData?.marks && Array.isArray(marksData?.marks)) {
       setMarks(
@@ -119,40 +196,12 @@ const Dashboard = () => {
           score: item.score,
           td_score: item.td_score,
           tp_score: item.tp_score,
+          coef: item.coef || 1,
         }))
       );
     }
   }, [marksData]);
 
-  const [projects, setProjects] = useState([]);
-  const [announcements, setAnnouncements] = useState([]);
-  const [courses, setCourses] = useState([]);
-  const [selectedProject, setSelectedProject] = useState(null);
-  const [submissionData, setSubmissionData] = useState({
-    file: null,
-    note: "",
-  });
-
-  const formatGrade = (score) => {
-    if (typeof score !== "number") return "N/A";
-    return Number.isInteger(score) ? score : score.toFixed(1);
-  };
-
-  const {
-    data: projectsData,
-    loading: projectsLoading,
-    error: projectsError,
-  } = useProject();
-  const {
-    data: announcementsData,
-    loading: announcementsLoading,
-    error: announcementsError,
-  } = useAnnouncements();
-  const {
-    data: modulesData,
-    loading: modulesLoading,
-    error: modulesError,
-  } = useModule();
   useEffect(() => {
     if (projectsData?.projects) {
       setProjects(projectsData.projects.slice(0, 3));
@@ -160,442 +209,661 @@ const Dashboard = () => {
   }, [projectsData]);
 
   useEffect(() => {
-    if (announcementsData?.announcments) {
-      setAnnouncements(announcementsData.announcments.slice(0, 4));
-    }
-  }, [announcementsData]);
-
-  useEffect(() => {
     if (modulesData?.modules) {
-      setCourses(modulesData.modules.slice(0, 3));
+      setCourses(
+        modulesData.modules.slice(0, 3).map((module) => ({
+          ...module,
+          progress: Math.floor(Math.random() * 100),
+        }))
+      );
     }
   }, [modulesData]);
 
-  const handleSubmitWork = useCallback(
-    (projectId) => {
-      const project = projects.find((p) => p.id === projectId);
-      setSelectedProject(project);
-    },
-    [projects]
-  );
+  const formatGrade = (score) => {
+    if (typeof score !== "number") return "N/A";
+    return Number.isInteger(score) ? score : score.toFixed(1);
+  };
 
-  const handleFileChange = useCallback((e) => {
-    setSubmissionData((prev) => ({ ...prev, file: e.target.files[0] }));
-  }, []);
-
-  const handleNoteChange = useCallback((e) => {
-    setSubmissionData((prev) => ({ ...prev, note: e.target.value }));
-  }, []);
-
-  const handleSubmit = useCallback(() => {
-    if (!submissionData.file) {
-      alert("Please select a file to upload");
-      return;
-    }
-
-
-    alert(`Project "${selectedProject.title}" submitted successfully!`);
-    setSelectedProject(null);
-    setSubmissionData({ file: null, note: "" });
-  }, [selectedProject, submissionData]);
-
-  const closeModal = useCallback(() => {
-    setSelectedProject(null);
-    setSubmissionData({ file: null, note: "" });
-  }, []);
-
-  if (projectsLoading || announcementsLoading || modulesLoading) {
-    return (
-      <div className="container mx-auto p-6 text-center">
-        Loading dashboard...
-      </div>
-    );
-  }
-  if (projectsError || announcementsError || modulesError) {
-    return (
-      <div className="container mx-auto p-6 text-center text-destructive">
-        Error loading dashboard data. Please try again later.
-      </div>
-    );
-  }
   const getProjectStatusColor = (status) => {
-    switch (status) {
+    switch (status?.toLowerCase()) {
       case "in progress":
         return {
-          bg: "bg-blue-100/80",
-          text: "text-blue-600",
-          badge: "bg-blue-100 text-blue-800",
+          bg: "bg-gradient-to-r from-blue-50 to-blue-100",
+          text: "text-blue-700",
+          border: "border-blue-300",
+          icon: "bg-blue-500",
         };
       case "pending review":
         return {
-          bg: "bg-amber-100/80",
-          text: "text-amber-600",
-          badge: "bg-amber-100 text-amber-800",
+          bg: "bg-gradient-to-r from-amber-50 to-amber-100",
+          text: "text-amber-700",
+          border: "border-amber-300",
+          icon: "bg-amber-500",
         };
       case "completed":
         return {
-          bg: "bg-green-100/80",
-          text: "text-green-600",
-          badge: "bg-green-100 text-green-800",
+          bg: "bg-gradient-to-r from-green-50 to-green-100",
+          text: "text-green-700",
+          border: "border-green-300",
+          icon: "bg-green-500",
         };
       default:
         return {
-          bg: "bg-gray-100/80",
-          text: "text-gray-600",
-          badge: "bg-gray-100 text-gray-800",
+          bg: "bg-gradient-to-r from-gray-50 to-gray-100",
+          text: "text-gray-700",
+          border: "border-gray-300",
+          icon: "bg-gray-500",
         };
     }
   };
 
-  const getProgressColor = (progress) => {
-    if (progress >= 80) return "bg-green-500";
-    if (progress >= 50) return "bg-blue-500";
-    if (progress >= 30) return "bg-amber-500";
-    return "bg-red-500";
-  };
-
-  const getGradeColor = (percentage) => {
+  const getGradeColor = (score) => {
+    const percentage = (score / 20) * 100;
     if (percentage >= 85)
-      return {
-        bg: "bg-green-100",
-        text: "text-green-700",
-        progress: "bg-green-500",
-      };
+      return "bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border-green-300";
     if (percentage >= 70)
-      return {
-        bg: "bg-blue-100",
-        text: "text-blue-700",
-        progress: "bg-blue-500",
-      };
+      return "bg-gradient-to-r from-blue-50 to-sky-50 text-blue-800 border-blue-300";
     if (percentage >= 50)
-      return {
-        bg: "bg-amber-100",
-        text: "text-amber-700",
-        progress: "bg-amber-500",
-      };
-    return {
-      bg: "bg-red-100",
-      text: "text-red-700",
-      progress: "bg-red-500",
-    };
+      return "bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-800 border-amber-300";
+    return "bg-gradient-to-r from-red-50 to-rose-50 text-red-800 border-red-300";
   };
 
-  const dashboardSections = {
-    courses: (
-      <section className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-primary">My Courses</h2>
-          <Link href="dashboard/courses">
-            <Button
-              variant="outline"
-              className="text-primary hover:text-primary"
-            >
-              View All Modules <FaChevronRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
-        </div>
-        <div className="grid md:grid-cols-3 gap-6">
-          {courses.map((course) => (
-            <CourseCard key={course.id} course={course} />
-          ))}
-        </div>
-      </section>
-    ),
-    announcements: (
-      <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 rounded-full bg-blue-100/80">
-              <FaBell className="w-5 h-5 text-gray-600" />
+  const openProjectModal = useCallback(
+    (projectId) => {
+      const project = projects.find((p) => p.id === projectId);
+      setSelectedProject(project);
+      setIsModalOpen(true);
+    },
+    [projects]
+  );
+  const closeProjectModal = useCallback(() => {
+    setIsModalOpen(false);
+    setSelectedProject(null);
+    setTempSubmissionData({ file_link: "", note: "" });
+  }, []);
+  const fileLinkRef = useRef("");
+  const noteRef = useRef("");
+  const handleSubmit = useCallback(async () => {
+    if (!fileLinkRef.current.value) {
+      toast.error("Please provide a file link");
+      return;
+    }
+
+    try {
+      const submission = {
+        student_id: session?.data?.user?.id,
+        project_id: selectedProject?.id,
+        file_link: fileLinkRef.current.value,
+        note: noteRef.current.value,
+      };
+
+      await submitProject(submission);
+      toast.success(
+        `Project "${selectedProject?.title}" submitted successfully!`
+      );
+      closeProjectModal();
+    } catch (err) {
+      toast.error(err.message || "Failed to submit project");
+    }
+  }, [selectedProject, session, submitProject, closeProjectModal]);
+
+  const averageScore =
+    marks.length > 0
+      ? (
+          marks.reduce((acc, curr) => acc + (curr.score || 0), 0) / marks.length
+        ).toFixed(1)
+      : "--";
+
+  const highestScore =
+    marks.length > 0 ? Math.max(...marks.map((g) => g.score || 0)) : 0;
+
+  const DashboardHeader = () => (
+    <header className="mb-8 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-purple-50/50 to-blue-50/30 rounded-2xl" />
+      <div className="relative z-10 p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-400/20 rounded-full blur-lg" />
+              <div className="relative p-3 rounded-full bg-gradient-to-r from-primary to-primary/90 text-white shadow-lg">
+                <Target className="h-8 w-8" />
+              </div>
             </div>
-            <CardTitle className="text-lg font-semibold text-gray-800">
-              Announcements
-            </CardTitle>
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                Welcome back!
+              </h1>
+              <p className="text-gray-600 text-lg mt-1">
+                Ready to continue your learning journey?
+              </p>
+            </div>
           </div>
           <Badge
             variant="outline"
-            className="border-blue-200 bg-gray-100/50 text-gray-600"
+            className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm border-gray-200 shadow-sm"
           >
-            {announcements.length} New
+            <Clock className="h-4 w-4 text-primary" />
+            <span className="font-medium">
+              {new Date().toLocaleDateString("en-US", {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+              })}
+            </span>
           </Badge>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {announcements.map((announcement) => (
-            <div
-              key={announcement.id}
-              className="group relative p-3 rounded-lg bg-white/90 backdrop-blur-sm border border-gray-100 hover:border-gray-200 transition-all duration-200 cursor-pointer hover:shadow-sm"
-            >
-              <div className="flex justify-between items-start">
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-medium text-gray-900 truncate">
-                    {announcement.title}
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-1 line-clamp-2">
-                    {announcement.content}
-                  </p>
-                </div>
-                {announcement.urgent === 1 && (
-                  <Badge
-                    variant="destructive "
-                    className="ml-2 flex-shrink-0 !bg-red-100 !text-red-800 !border-red-200"
-                  >
-                    Urgent
-                  </Badge>
-                )}
-              </div>
-              <div className="flex items-center mt-2 space-x-2">
-                <span className="text-xs text-gray-400">
-                  {new Date(announcement.datetime).toLocaleDateString()}
-                </span>
-              </div>
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
-            </div>
-          ))}
-        </CardContent>
-        <CardFooter className="pt-0">
+        </div>
+      </div>
+    </header>
+  );
+
+  const CoursesSection = () => (
+    <section className="space-y-6 mb-8">
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-gradient-to-r from-primary/10 to-primary/20">
+            <BookOpen className="h-6 w-6 text-primary" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900">My Courses</h2>
+        </div>
+        <Link href="/dashboard/courses">
           <Button
-            variant="ghost"
-            size="sm"
-            className="text-gray-600 hover:text-gray-800 w-full hover:bg-blue-50"
-          >
-            View All Announcements
-            <FaChevronRight className="ml-1 h-3 w-3" />
-          </Button>
-        </CardFooter>
-      </Card>
-    ),
-    projects: (
-      <Card className="shadow-sm hover:shadow-md transition-all duration-300">
-        <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg ">
-              <FaListAlt className="w-5 h-5 text-gray-600" />
-            </div>
-            <CardTitle className="text-lg font-semibold text-gray-800">
-              Active Projects
-            </CardTitle>
-          </div>
-          <Badge
             variant="outline"
-            className="border-gray-200 bg-gray-100/50 text-gray-600"
+            className="bg-white hover:bg-primary/5 border-primary/30 text-primary hover:text-primary shadow-sm hover:shadow-md transition-all duration-300"
           >
-            {projects.length} Ongoing
-          </Badge>
-        </CardHeader>
-
-        <CardContent className="space-y-3">
-          {projects.map((project) => (
-            <div
-              key={project.id}
-              className="group relative p-4 rounded-xl bg-white/90 backdrop-blur-sm border border-gray-100 hover:border-gray-200 transition-all duration-200 cursor-pointer hover:shadow-xs"
-            >
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div
-                    className={`p-3 rounded-lg ${getProjectStatusColor(project.status).bg
-                      }`}
-                  >
-                    <FaBook
-                      className={`w-5 h-5 ${getProjectStatusColor(project.status).text
-                        }`}
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-gray-900 truncate">
-                      {project.title}
-                    </h3>
-                  </div>
+            View All
+            <FaChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+        </Link>
+      </div>
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {courses.length > 0 ? (
+          courses.map((course) => (
+            <CourseCard key={course.id} course={course} />
+          ))
+        ) : (
+          <Card className="col-span-full border-0 bg-gradient-to-br from-gray-50 to-white shadow-lg">
+            <CardContent className="p-8 text-center">
+              <div className="mx-auto max-w-md">
+                <div className="relative mb-6">
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-purple-400/10 rounded-full blur-2xl" />
+                  <FileText className="h-16 w-16 text-gray-400 mx-auto relative z-10" />
                 </div>
-
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  No courses enrolled yet
+                </h3>
+                <p className="text-gray-600 mb-6 leading-relaxed">
+                  Start your learning journey by exploring our available courses
+                  and find the perfect fit for your goals.
+                </p>
                 <Button
-                  size="sm"
-                  variant="outline"
-                  className="group-hover:bg-gray-50 group-hover:border-gray-200 group-hover:text-gray-600 transition-colors"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSubmitWork(project.id);
-                  }}
+                  asChild
+                  className="bg-gradient-to-r from-primary to-primary/90 shadow-lg hover:shadow-xl transition-all duration-300"
                 >
-                  <FaUpload className="mr-2 h-3.5 w-3.5" />
-                  Submit Work
+                  <Link href="/courses">
+                    <BookOpen className="mr-2 h-4 w-4" />
+                    Browse Courses
+                  </Link>
                 </Button>
               </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </section>
+  );
 
-              {project.progress && (
-                <div className="mt-3">
-                  <div className="flex justify-between text-xs text-gray-500 mb-1">
-                    <span>Progress</span>
-                    <span>{project.progress}%</span>
-                  </div>
-                  <div className="w-full bg-gray-100 rounded-full h-1.5">
-                    <div
-                      className={`h-1.5 rounded-full ${getProgressColor(
-                        project.progress
-                      )}`}
-                      style={{ width: `${project.progress}%` }}
-                    ></div>
-                  </div>
-                </div>
-              )}
+  const AnnouncementsSection = () => (
+    <Card className="border-0 bg-gradient-to-br from-white to-blue-50/30 shadow-xl hover:shadow-2xl transition-all duration-500 overflow-hidden group">
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-100/20 to-transparent -translate-x-full transition-transform duration-1000" />
 
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 relative z-10">
+        <div className="flex items-center space-x-3">
+          <div className="relative">
+            <div className="absolute inset-0 bg-blue-200/50 rounded-full blur-md" />
+            <div className="relative p-2.5 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md">
+              <FaBell className="w-5 h-5" />
             </div>
-          ))}
-        </CardContent>
-
-        <CardFooter className="pt-0">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-gray-600 hover:text-gray-800 w-full hover:bg-gray-50"
-          >
-            View All Projects
-            <FaChevronRight className="ml-1 h-3.5 w-3.5" />
-          </Button>
-        </CardFooter>
-      </Card>
-    ),
-    grades: (
-      <Card className="border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow duration-300">
-        <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-gray-100">
-              <FaChartLine className="w-5 h-5 text-gray-600" />
-            </div>
-            <CardTitle className="text-lg font-semibold text-gray-800">
-              My Exam Grades
-            </CardTitle>
           </div>
-          <Link href="/dashboard/grades">
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-gray-200 hover:bg-gray-50 hover:border-gray-300 text-gray-700"
-            >
-              View Full Transcript
-              <FaChevronRight className="ml-1.5 h-3 w-3" />
-            </Button>
-          </Link>
-        </CardHeader>
+          <CardTitle className="text-xl font-bold text-gray-900">
+            Announcements
+          </CardTitle>
+        </div>
+        <Badge
+          variant="outline"
+          className="bg-blue-50 border-blue-200 text-blue-700 font-semibold px-3 py-1 shadow-sm"
+        >
+          {announcements.length} New
+        </Badge>
+      </CardHeader>
 
-        <CardContent className="space-y-4">
-          {marks.slice(0, 2).map((exam) => {
-            const gradePercentage = (exam.score / 20) * 100;
+      <CardContent className="space-y-3 relative z-10">
+        {announcements.map((announcement, index) => (
+          <div
+            key={announcement.id}
+            className="group/item relative p-4 rounded-xl bg-white/70 backdrop-blur-sm border border-gray-100 hover:border-blue-200 transition-all duration-300 cursor-pointer hover:shadow-md transform hover:-translate-y-0.5"
+            style={{ animationDelay: `${index * 100}ms` }}
+          >
+            <div className="flex justify-between items-start gap-3">
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-gray-900 truncate text-sm group-hover/item:text-blue-700 transition-colors">
+                  {announcement.title}
+                </h3>
+                <p className="text-xs text-gray-600 mt-1.5 line-clamp-2 leading-relaxed">
+                  {announcement.content}
+                </p>
+              </div>
+              {announcement.urgent === 1 && (
+                <Badge
+                  variant="destructive"
+                  className="ml-2 flex-shrink-0 bg-gradient-to-r from-red-500 to-rose-500 text-white border-0 shadow-sm animate-pulse"
+                >
+                  Urgent
+                </Badge>
+              )}
+            </div>
+            <div className="flex items-center justify-between mt-3">
+              <span className="text-xs text-gray-500 font-medium">
+                {new Date(announcement.datetime).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </span>
+              <div className="w-2 h-2 rounded-full bg-blue-400 opacity-0 group-hover/item:opacity-100 transition-opacity" />
+            </div>
+          </div>
+        ))}
+      </CardContent>
+
+      <CardFooter className="pt-2 relative z-10">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-blue-600 hover:text-blue-700 w-full hover:bg-blue-50 font-medium transition-all duration-300"
+        >
+          View All Announcements
+          <FaChevronRight className="ml-2 h-3 w-3" />
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+
+  const ProjectsSection = () => (
+    <Card className="border-0 bg-gradient-to-br from-white to-amber-50/30 shadow-xl hover:shadow-2xl transition-all duration-500 h-full overflow-hidden group">
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-amber-100/20 to-transparent -translate-x-full transition-transform duration-1000" />
+
+      <CardHeader className="flex flex-row items-center justify-between pb-4 relative z-10">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <div className="absolute inset-0 bg-amber-200/50 rounded-full blur-md" />
+            <div className="relative p-2.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md">
+              <FaListAlt className="w-5 h-5" />
+            </div>
+          </div>
+          <CardTitle className="text-xl font-bold text-gray-900">
+            Active Projects
+          </CardTitle>
+        </div>
+        <Badge
+          variant="secondary"
+          className="bg-amber-50 text-amber-700 border-amber-200 font-semibold px-3 py-1 shadow-sm"
+        >
+          {projects.length} Ongoing
+        </Badge>
+      </CardHeader>
+
+      <CardContent className="space-y-4 relative z-10">
+        {projects.length > 0 ? (
+          projects.map((project, index) => {
+            const statusColors = getProjectStatusColor(project.status);
+            const isSubmitted = isSubmittedFor(
+              session?.data?.user?.id,
+              project.id
+            );
+
+            return (
+              <div
+                key={project.id}
+                className="group/project relative p-4 rounded-xl border hover:border-primary/40 transition-all duration-300 bg-white/80 backdrop-blur-sm hover:shadow-lg transform hover:-translate-y-0.5"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div
+                      className={`relative p-2.5 rounded-lg ${statusColors.bg} border ${statusColors.border}`}
+                    >
+                      <div
+                        className={`absolute inset-0 ${statusColors.icon} rounded-lg opacity-10`}
+                      />
+                      <FaBook
+                        className={`w-4 h-4 ${statusColors.text} relative z-10`}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-gray-900 truncate group-hover/project:text-primary transition-colors">
+                        {project.title}
+                      </h3>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant={isSubmitted ? "secondary" : "outline"}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openProjectModal(project.id);
+                    }}
+                    className={
+                      isSubmitted
+                        ? "bg-green-50 hover:bg-green-100 border-green-200 text-green-700"
+                        : "bg-white hover:bg-primary/5 border-primary/30 text-primary hover:text-primary"
+                    }
+                    disabled={isSubmitted}
+                  >
+                    {isSubmitted ? (
+                      <>
+                        <FaCheck className="mr-2 h-3.5 w-3.5" />
+                        Submitted
+                      </>
+                    ) : (
+                      <>
+                        <FaUpload className="mr-2 h-3.5 w-3.5" />
+                        Submit
+                      </>
+                    )}
+                  </Button>
+                </div>
+                {/* Show submission status visually */}
+                {isSubmitted && (
+                  <div className="mt-2 text-green-700 text-xs font-semibold flex items-center gap-1">
+                    <FaCheck className="inline-block h-3 w-3" />
+                    You have submitted this project
+                  </div>
+                )}
+              </div>
+            );
+          })
+        ) : (
+          <div className="text-center py-8">
+            <div className="relative mb-4">
+              <div className="absolute inset-0 bg-gray-200/50 rounded-full blur-xl" />
+              <FaListAlt className="h-12 w-12 text-gray-400 mx-auto relative z-10" />
+            </div>
+            <p className="text-gray-600 font-medium">No active projects</p>
+          </div>
+        )}
+      </CardContent>
+
+      <CardFooter className="relative z-10">
+        <Button
+          variant="ghost"
+          className="w-full hover:bg-amber-50 text-amber-700 hover:text-amber-800 font-medium transition-all duration-300"
+          asChild
+        >
+          <Link href="/projects">
+            View All Projects
+            <FaChevronRight className="ml-2 h-4 w-4" />
+          </Link>
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+
+  const GradesSection = () => (
+    <Card className="border-0 bg-gradient-to-br from-white to-green-50/30 shadow-xl hover:shadow-2xl transition-all duration-500 h-full overflow-hidden group">
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-green-100/20 to-transparent -translate-x-full transition-transform duration-1000" />
+
+      <CardHeader className="flex flex-row items-center justify-between pb-4 relative z-10">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <div className="absolute inset-0 bg-green-200/50 rounded-full blur-md" />
+            <div className="relative p-2.5 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-md">
+              <TrendingUp className="w-5 h-5" />
+            </div>
+          </div>
+          <CardTitle className="text-xl font-bold text-gray-900">
+            Recent Grades
+          </CardTitle>
+        </div>
+        <Link href="/dashboard/grades">
+          <Button
+            variant="outline"
+            size="sm"
+            className="bg-white hover:bg-green-50 border-green-200 text-green-700 hover:text-green-800 shadow-sm hover:shadow-md transition-all duration-300"
+          >
+            View All
+            <FaChevronRight className="ml-2 h-4 w-4" />
+          </Button>
+        </Link>
+      </CardHeader>
+
+      <CardContent className="space-y-4 relative z-10">
+        {marks.length > 0 ? (
+          marks.slice(0, 2).map((exam, index) => {
+            const gradeColor = getGradeColor(exam.score);
             return (
               <div
                 key={exam.id}
-                className="group relative p-4 rounded-xl border border-gray-100 hover:border-gray-200 bg-white transition-all duration-200"
+                className="group/grade relative p-4 rounded-xl border hover:border-green-300 transition-all duration-300 bg-white/80 backdrop-blur-sm hover:shadow-lg transform hover:-translate-y-0.5"
+                style={{ animationDelay: `${index * 100}ms` }}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div
-                      className={`p-2 rounded-lg ${getGradeColor(gradePercentage).bg
-                        }`}
+                      className={`relative p-2.5 rounded-lg ${gradeColor} border shadow-sm`}
                     >
-                      <FaClipboardList
-                        className={`w-5 h-5 ${getGradeColor(gradePercentage).text
-                          }`}
-                      />
+                      <Award className="w-4 h-4 relative z-10" />
                     </div>
                     <div>
-                      <h3 className="font-medium text-gray-900">
+                      <h3 className="font-semibold text-gray-900 group-hover/grade:text-green-700 transition-colors">
                         {exam.title}
                       </h3>
-                      <p className="text-sm text-gray-500">Final Exam</p>
+                      <p className="text-sm text-gray-600 font-medium">
+                        Final Exam
+                      </p>
                     </div>
                   </div>
-
                   <div className="flex items-center gap-2">
-                    <div
-                      className={`text-xl font-bold ${getGradeColor(gradePercentage).text
-                        }`}
-                    >
-                      {formatGrade(exam.score)}
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-gray-900">
+                        {formatGrade(exam.score)}
+                      </div>
+                      <div className="text-sm text-gray-500 font-medium">
+                        /20
+                      </div>
                     </div>
-                    <div className="text-gray-400">/ 20</div>
+                    <div className="w-1 h-8 bg-gradient-to-t from-green-200 to-green-400 rounded-full ml-2" />
                   </div>
                 </div>
-
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
               </div>
             );
-          })}
-        </CardContent>
-      </Card>
-    ),
+          })
+        ) : (
+          <div className="text-center py-8">
+            <div className="relative mb-4">
+              <div className="absolute inset-0 bg-gray-200/50 rounded-full blur-xl" />
+              <FaChartLine className="h-12 w-12 text-gray-400 mx-auto relative z-10" />
+            </div>
+            <p className="text-gray-600 font-medium">No grades recorded yet</p>
+          </div>
+        )}
+      </CardContent>
 
-    projectSubmissionModal: (
-      <Dialog open={!!selectedProject} onOpenChange={closeModal}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>
-              Submit Work for:{" "}
-              <span className="text-blue-600">{selectedProject?.title}</span>
-            </DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="projectFile" className="text-right">
-                Project File
-              </Label>
-              <Input
-                id="projectFile"
-                type="file"
-                className="col-span-3"
-                onChange={handleFileChange}
-              />
+      {marks.length > 0 && (
+        <CardFooter className="flex justify-between items-center border-t border-gray-100 pt-4 relative z-10">
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-gradient-to-r from-green-400 to-emerald-400" />
+            <div className="text-sm text-gray-600">
+              Average:{" "}
+              <span className="font-bold text-green-700">
+                {averageScore}/20
+              </span>
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="submissionNote" className="text-right">
-                Notes
-              </Label>
-              <Textarea
-                id="submissionNote"
-                placeholder="Any additional notes..."
-                className="col-span-3"
-                value={submissionData.note}
-                onChange={handleNoteChange}
-              />
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400" />
+            <div className="text-sm text-gray-600">
+              Highest:{" "}
+              <span className="font-bold text-blue-700">{highestScore}/20</span>
             </div>
-            {submissionData.file && (
-              <div className="col-span-4 bg-gray-50 p-3 rounded-md">
-                <p className="font-medium">Selected file:</p>
-                <p>
-                  {submissionData.file.name} (
-                  {(submissionData.file.size / 1024).toFixed(2)} KB)
-                </p>
+          </div>
+        </CardFooter>
+      )}
+    </Card>
+  );
+
+  const ProjectSubmissionModal = useMemo(
+    () => () =>
+      (
+        <Dialog open={isModalOpen} onOpenChange={closeProjectModal}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>
+                Submit Work for:{" "}
+                <span className="text-blue-600">{selectedProject?.title}</span>
+              </DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="projectFile" className="text-right">
+                  Project File Link
+                </Label>
+                <Input
+                  id="projectFile"
+                  placeholder="https://drive.google.com/your-project-file"
+                  type="url"
+                  className="col-span-3"
+                  ref={fileLinkRef}
+                  defaultValue=""
+                />
               </div>
-            )}
-          </div>
-          <div className="flex justify-end space-x-2">
-            <DialogClose asChild>
-              <Button variant="outline">
-                <FaTimes className="mr-2" /> Cancel
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="submissionNote" className="text-right">
+                  Notes
+                </Label>
+                <Textarea
+                  id="submissionNote"
+                  placeholder="Any additional notes..."
+                  className="col-span-3"
+                  ref={noteRef}
+                  defaultValue=""
+                />
+              </div>
+              {submitError && (
+                <div className="col-span-4 p-3 rounded-md bg-red-50 border border-red-200">
+                  <p className="text-red-600 text-sm">{submitError}</p>
+                </div>
+              )}
+            </div>
+            <div className="flex justify-end space-x-2">
+              <DialogClose asChild>
+                <Button variant="outline">
+                  <FaTimes className="mr-2" /> Cancel
+                </Button>
+              </DialogClose>
+              <Button onClick={handleSubmit} disabled={submitLoading}>
+                {submitLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <FaUpload className="mr-2 h-4 w-4" />
+                    Submit
+                  </>
+                )}
               </Button>
-            </DialogClose>
-            <Button onClick={handleSubmit}>
-              <FaUpload className="mr-2" /> Submit
-            </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      ),
+    [
+      isModalOpen,
+      selectedProject,
+      submitError,
+      submitLoading,
+      handleSubmit,
+      closeProjectModal,
+    ]
+  );
+
+  if (
+    projectsLoading ||
+    announcementsLoading ||
+    modulesLoading ||
+    marksLoading
+  ) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 flex flex-col items-center justify-center">
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-purple-400/20 rounded-full blur-3xl animate-pulse" />
+          <Loader2 className="h-16 w-16 animate-spin text-primary relative z-10" />
+        </div>
+        <div className="mt-8 text-center">
+          <h3 className="text-xl font-bold text-gray-800 mb-2">
+            Loading your dashboard
+          </h3>
+          <p className="text-gray-600">
+            Preparing your personalized experience...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (projectsError || announcementsError || modulesError || marksError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-rose-50 flex flex-col items-center justify-center p-6">
+        <div className="max-w-md text-center">
+          <div className="relative mb-6">
+            <div className="absolute inset-0 bg-red-200/50 rounded-full blur-2xl" />
+            <AlertCircle className="h-16 w-16 text-red-500 mx-auto relative z-10" />
           </div>
-        </DialogContent>
-      </Dialog>
-    ),
-  };
+          <h3 className="text-2xl font-bold text-gray-900 mb-3">
+            Oops! Something went wrong
+          </h3>
+          <p className="text-gray-600 mb-6 leading-relaxed">
+            {projectsError
+              ? String(projectsError?.message || projectsError)
+              : announcementsError
+              ? String(announcementsError?.message || announcementsError)
+              : modulesError
+              ? String(modulesError?.message || modulesError)
+              : marksError
+              ? String(marksError?.message || marksError)
+              : "We're having trouble loading your dashboard. Please try again."}
+          </p>
+          <Button
+            onClick={() => window.location.reload()}
+            className="bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 shadow-lg hover:shadow-xl transition-all duration-300"
+          >
+            <Zap className="mr-2 h-4 w-4" />
+            Reload Dashboard
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto p-4 sm:p-6 md:p-8 space-y-6 w-full min-h-screen">
-      <header className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-        <h1 className="text-2xl sm:text-3xl font-bold">Welcome back ! </h1>
-      </header>
-      <div className="space-y-8">
-        <div>{dashboardSections.courses}</div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50">
+      <div className="container mx-auto p-4 sm:p-6 md:p-8 space-y-8">
+        <DashboardHeader />
+        <CoursesSection />
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {dashboardSections.announcements}
-          {dashboardSections.projects}
-          {dashboardSections.grades}
+          <div className="md:col-span-1">
+            <AnnouncementsSection />
+          </div>
+          <div className="md:col-span-1">
+            <ProjectsSection />
+          </div>
+          <div className="md:col-span-1">
+            <GradesSection />
+          </div>
         </div>
-        {dashboardSections.departments}
-        {dashboardSections.projectSubmissionModal}
+
+        <ProjectSubmissionModal />
       </div>
     </div>
   );

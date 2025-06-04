@@ -1,10 +1,24 @@
 "use client";
 import { FiPlus, FiX, FiSave, FiEye, FiEyeOff } from "react-icons/fi";
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 
 const StudentForm = ({
   projects,
-  modules, // <-- Add this prop
+  modules,
   setShowAddForm,
   handleAddStudent,
   initialStudent = {
@@ -14,13 +28,13 @@ const StudentForm = ({
     email: "",
     password: "",
     department: "cs",
-    assignedModules: [], // <-- Add default
+    assignedModules: [],
   },
 }) => {
   const [formData, setFormData] = useState({
     ...initialStudent,
     wishlist: [],
-    assignedModules: initialStudent.assignedModules || [], // <-- Track assigned modules
+    assignedModules: initialStudent.assignedModules || [],
   });
   const [formErrors, setFormErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,15 +44,17 @@ const StudentForm = ({
     setFormData({
       ...initialStudent,
       wishlist: initialStudent.id ? initialStudent.wishlist : [],
-      assignedModules: initialStudent.id ? (initialStudent.assignedModules || []) : [],
+      assignedModules: initialStudent.id
+        ? initialStudent.assignedModules || []
+        : [],
     });
     setFormErrors({});
   }, [initialStudent.id]);
 
   const validateForm = () => {
     const errors = {};
-
-    if (!formData.first_name.trim()) errors.first_name = "First Name is required";
+    if (!formData.first_name.trim())
+      errors.first_name = "First Name is required";
     if (!formData.last_name.trim()) errors.last_name = "Last Name is required";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       errors.email = "Valid email is required";
@@ -48,7 +64,6 @@ const StudentForm = ({
     } else if (formData.password && formData.password.length < 6) {
       errors.password = "Password must be at least 6 characters";
     }
-
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -56,46 +71,25 @@ const StudentForm = ({
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
     if (formErrors[name]) {
       setFormErrors((prev) => ({ ...prev, [name]: null }));
     }
   };
-  const handleDepartmentChange = (e) => {
-    const department = e.target.value;
+
+  const handleDepartmentChange = (value) => {
     setFormData((prev) => ({
       ...prev,
-      department,
+      department: value,
     }));
   };
 
-  const handleWishlistChange = (e) => {
-    const { value } = e.target;
-    if (formData.wishlist.includes(value)) {
-      setFormData((prev) => ({
-        ...prev,
-        wishlist: prev.wishlist.filter((item) => item !== value),
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        wishlist: [...prev.wishlist, value]
-      }));
-    }
-  }
-
-  // Add handler for module assignment
-  const handleModuleAssignmentChange = (e) => {
-    const moduleId = e.target.value;
-    setFormData((prev) => {
-      const alreadyAssigned = prev.assignedModules.includes(moduleId);
-      return {
-        ...prev,
-        assignedModules: alreadyAssigned
-          ? prev.assignedModules.filter((id) => id !== moduleId)
-          : [...prev.assignedModules, moduleId],
-      };
-    });
+  const handleModuleAssignmentChange = (moduleId) => {
+    setFormData((prev) => ({
+      ...prev,
+      assignedModules: prev.assignedModules.includes(moduleId)
+        ? prev.assignedModules.filter((id) => id !== moduleId)
+        : [...prev.assignedModules, moduleId],
+    }));
   };
 
   const togglePasswordVisibility = () => {
@@ -103,7 +97,7 @@ const StudentForm = ({
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     setIsSubmitting(true);
 
     if (!validateForm()) {
@@ -112,190 +106,193 @@ const StudentForm = ({
     }
 
     try {
-      const studentData = {
-        ...formData,
-        assignedModules: formData.assignedModules, // Ensure this is sent
-      };
-
-      await handleAddStudent(studentData);
+      await handleAddStudent(formData);
       setShowAddForm(false);
+      toast({
+        title: "Success",
+        description: initialStudent.id
+          ? "Student updated successfully"
+          : "Student added successfully",
+      });
     } catch (error) {
       console.error("Submission error:", error);
-      if (error.response?.data?.errors) {
-        setFormErrors(error.response.data.errors);
-      }
+      toast({
+        title: "Error",
+        description: error.message || "An error occurred",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6">
-      <h2 className="text-xl font-semibold mb-4">
-        {initialStudent.id ? "Edit Student" : "Add New Student"}
-      </h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              First Name *
-            </label>
-            <input
-              type="text"
-              name="first_name"
-              className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent ${formErrors.first_name ? "border-red-500" : "border-gray-300"
-                }`}
-              value={formData.first_name}
-              onChange={handleChange}
-              minLength={3}
-              maxLength={50}
-            />
-            {formErrors.first_name && (
-              <p className="mt-1 text-sm text-red-600">{formErrors.first_name}</p>
-            )}
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Last Name *
-            </label>
-            <input
-              type="text"
-              name="last_name"
-              className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent ${formErrors.last_name ? "border-red-500" : "border-gray-300"
-                }`}
-              value={formData.last_name}
-              onChange={handleChange}
-              minLength={3}
-              maxLength={50}
-            />
-            {formErrors.last_name && (
-              <p className="mt-1 text-sm text-red-600">
-                {formErrors.last_name}
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email *
-            </label>
-            <input
-              type="email"
-              name="email"
-              className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent ${formErrors.email ? "border-red-500" : "border-gray-300"
-                }`}
-              value={formData.email}
-              onChange={handleChange}
-            />
-            {formErrors.email && (
-              <p className="mt-1 text-sm text-red-600">{formErrors.email}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {initialStudent.id ? "New Password" : "Password *"}
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent ${formErrors.password ? "border-red-500" : "border-gray-300"
-                  }`}
-                value={formData.password || ""}
-                onChange={handleChange}
-                minLength={6}
-                maxLength={50}
-                placeholder={
-                  initialStudent.id ? "Leave blank to keep current" : ""
-                }
-              />
-              <button
-                type="button"
-                onClick={togglePasswordVisibility}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-              >
-                {showPassword ? <FiEyeOff /> : <FiEye />}
-              </button>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.2 }}
+    >
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            {initialStudent.id ? "Edit Student" : "Add New Student"}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="first_name">First Name *</Label>
+                <Input
+                  id="first_name"
+                  name="first_name"
+                  value={formData.first_name}
+                  onChange={handleChange}
+                  minLength={3}
+                  maxLength={50}
+                  className={formErrors.first_name ? "border-red-500" : ""}
+                />
+                {formErrors.first_name && (
+                  <p className="text-sm text-red-500">
+                    {formErrors.first_name}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="last_name">Last Name *</Label>
+                <Input
+                  id="last_name"
+                  name="last_name"
+                  value={formData.last_name}
+                  onChange={handleChange}
+                  minLength={3}
+                  maxLength={50}
+                  className={formErrors.last_name ? "border-red-500" : ""}
+                />
+                {formErrors.last_name && (
+                  <p className="text-sm text-red-500">{formErrors.last_name}</p>
+                )}
+              </div>
             </div>
-            {formErrors.password && (
-              <p className="mt-1 text-sm text-red-600">{formErrors.password}</p>
-            )}
-            {initialStudent.id && (
-              <p className="mt-1 text-xs text-gray-500">
-                Only enter if you want to change the password
-              </p>
-            )}
-          </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Department *
-            </label>
-            <select
-              name="department"
-              className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={formData.department}
-              onChange={handleDepartmentChange}
-            >
-              <option value="cs">Computer Science</option>
-              <option value="math">Mathematics</option>
-              <option value="physics">Physics</option>
-              <option value="chemistry">Chemistry</option>
-            </select>
-          </div>
-        </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email *</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className={formErrors.email ? "border-red-500" : ""}
+                />
+                {formErrors.email && (
+                  <p className="text-sm text-red-500">{formErrors.email}</p>
+                )}
+              </div>
 
-        {/* Module Assignment Section */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Assign Modules
-          </label>
-          <div className="flex flex-wrap gap-3">
-            {modules && modules.length > 0 ? (
-              modules.map((mod) => (
-                <label key={mod.id} className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    value={mod.id}
-                    checked={formData.assignedModules.includes(mod.id)}
-                    onChange={handleModuleAssignmentChange}
+              <div className="space-y-2">
+                <Label htmlFor="password">
+                  {initialStudent.id ? "New Password" : "Password *"}
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password || ""}
+                    onChange={handleChange}
+                    minLength={6}
+                    maxLength={50}
+                    placeholder={
+                      initialStudent.id ? "Leave blank to keep current" : ""
+                    }
+                    className={formErrors.password ? "border-red-500" : ""}
                   />
-                  <span>{mod.title}</span>
-                </label>
-              ))
-            ) : (
-              <span className="text-gray-500">No modules available</span>
-            )}
-          </div>
-        </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                    onClick={togglePasswordVisibility}
+                  >
+                    {showPassword ? <FiEyeOff /> : <FiEye />}
+                  </Button>
+                </div>
+                {formErrors.password && (
+                  <p className="text-sm text-red-500">{formErrors.password}</p>
+                )}
+                {initialStudent.id && (
+                  <p className="text-xs text-muted-foreground">
+                    Only enter if you want to change the password
+                  </p>
+                )}
+              </div>
+            </div>
 
-        <div className="flex space-x-3 pt-2">
-          <button
-            type="submit"
-            className={`px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center transition-colors duration-200 ${isSubmitting ? "opacity-75 cursor-not-allowed" : ""}`}
-            disabled={isSubmitting}
-          >
-            <FiSave className="inline mr-2" />
-            {isSubmitting
-              ? "Processing..."
-              : initialStudent.id
-                ? "Update Student"
-                : "Add Student"}
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowAddForm(false)}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 flex items-center transition-colors duration-200"
-          >
-            <FiX className="inline mr-2" />
-            Cancel
-          </button>
-        </div>
-      </form>
-    </div>
+            <div className="space-y-2">
+              <Label htmlFor="department">Department *</Label>
+              <Select
+                value={formData.department}
+                onValueChange={handleDepartmentChange}
+              >
+                <SelectTrigger id="department">
+                  <SelectValue placeholder="Select department" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cs">Computer Science</SelectItem>
+                  <SelectItem value="math">Mathematics</SelectItem>
+                  <SelectItem value="physics">Physics</SelectItem>
+                  <SelectItem value="chemistry">Chemistry</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Assign Modules</Label>
+              <div className="flex flex-wrap gap-4">
+                {modules && modules.length > 0 ? (
+                  modules.map((mod) => (
+                    <div key={mod.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`module-${mod.id}`}
+                        checked={formData.assignedModules.includes(mod.id)}
+                        onCheckedChange={() =>
+                          handleModuleAssignmentChange(mod.id)
+                        }
+                      />
+                      <Label htmlFor={`module-${mod.id}`}>{mod.title}</Label>
+                    </div>
+                  ))
+                ) : (
+                  <Badge variant="outline">No modules available</Badge>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-4 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowAddForm(false)}
+              >
+                <FiX className="mr-2" />
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                <FiSave className="mr-2" />
+                {isSubmitting
+                  ? "Processing..."
+                  : initialStudent.id
+                  ? "Update Student"
+                  : "Add Student"}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 

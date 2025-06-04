@@ -21,7 +21,6 @@ const AdminDashboard = () => {
   const [editMode, setEditMode] = useState({ type: null, id: null });
   const [showAddForm, setShowAddForm] = useState(false);
 
-  // Announcements State
   const [announcements, setAnnouncements] = useState([]);
   const [projects, setProjects] = useState([]);
 

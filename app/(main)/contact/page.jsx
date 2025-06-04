@@ -9,9 +9,10 @@ import {
   FiGithub,
   FiSend,
   FiFacebook,
+  FiMapPin,
 } from "react-icons/fi";
 
-const page = () => {
+const ContactPage = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -20,9 +21,9 @@ const page = () => {
 
   const floatingVariants = {
     float: {
-      y: [0, -15, 0],
+      y: [0, -10, 0],
       transition: {
-        duration: 6,
+        duration: 4,
         repeat: Infinity,
         repeatType: "mirror",
         ease: "easeInOut",
@@ -32,129 +33,222 @@ const page = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    // Handle form submission
   };
 
   return (
-    <section className="py-20 bg-gray-50 min-h-screen">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-3xl md:text-4xl font-bold mb-4"
-          >
+    <section className="py-20 bg-gradient-to-br from-blue-50 to-indigo-50 min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
             Contact The Administration
-          </motion.h2>
-          <div className="w-24 h-1 bg-blue-600 mx-auto mb-6" />
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto"
-          >
-            If you have any issues, please contact the administration.
-          </motion.p>
-        </div>
+          </h2>
+          <div className="w-32 h-1.5 bg-gradient-to-r from-blue-400 to-indigo-400 mx-auto mb-6 rounded-full" />
+          <p className="mt-4 text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+            Have questions or need assistance? Reach out to our team through any
+            of these channels.
+          </p>
+        </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-12 items-center">
+        {/* Content Grid */}
+        <div className="grid lg:grid-cols-2 gap-12 items-start">
+          {/* Contact Cards */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
-            className="space-y-8 relative"
+            transition={{ duration: 0.6 }}
+            className="space-y-6"
           >
             <motion.div
               variants={floatingVariants}
               animate="float"
-              className="p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow"
+              className="p-8 bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-white hover:border-blue-100"
             >
-              <FiMail className="text-3xl text-blue-600 mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Email</h3>
-              <p className="text-gray-600">estudyInIkama@gmail.com</p>
+              <div className="flex items-start gap-6">
+                <div className="p-3 bg-blue-50 rounded-xl text-blue-600">
+                  <FiMail className="text-2xl" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold mb-2 text-gray-800">
+                    Email Us
+                  </h3>
+                  <p className="text-gray-600 mb-2">For general inquiries</p>
+                  <a
+                    href="mailto:estudyInIkama@gmail.com"
+                    className="text-blue-600 hover:text-blue-800 transition-colors"
+                  >
+                    estudyInIkama@gmail.com
+                  </a>
+                </div>
+              </div>
             </motion.div>
 
             <motion.div
               variants={floatingVariants}
               animate="float"
-              className="p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow"
-              style={{ transitionDelay: "0.2s" }}
+              transition={{ delay: 0.2 }}
+              className="p-8 bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-white hover:border-blue-100"
             >
-              <FiPhone className="text-3xl text-blue-600 mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Phone</h3>
-              <p className="text-gray-600">+213 (123) 45-6789</p>
+              <div className="flex items-start gap-6">
+                <div className="p-3 bg-indigo-50 rounded-xl text-indigo-600">
+                  <FiPhone className="text-2xl" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold mb-2 text-gray-800">
+                    Call Us
+                  </h3>
+                  <p className="text-gray-600 mb-2">
+                    Available Mon-Fri, 9am-5pm
+                  </p>
+                  <a
+                    href="tel:+213123456789"
+                    className="text-blue-600 hover:text-blue-800 transition-colors"
+                  >
+                    +213 (123) 45-6789
+                  </a>
+                </div>
+              </div>
             </motion.div>
 
-            <div className="flex space-x-6 justify-center mt-8">
-              <motion.a
-                whileHover={{ scale: 1.1, color: "#2563eb" }}
-                className="text-gray-600 hover:text-blue-600 transition-colors"
-                href="https://www.linkedin.com"
-              >
-                <FiLinkedin className="text-3xl" />
-              </motion.a>
-              <motion.a
-                whileHover={{ scale: 1.1, color: "#2563eb" }}
-                className="text-gray-600 hover:text-blue-600 transition-colors"
-                href="https://facebook.com"
-              >
-                <FiFacebook className="text-3xl" />
-              </motion.a>
-            </div>
+            <motion.div
+              variants={floatingVariants}
+              animate="float"
+              transition={{ delay: 0.4 }}
+              className="p-8 bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-white hover:border-blue-100"
+            >
+              <div className="flex items-start gap-6">
+                <div className="p-3 bg-purple-50 rounded-xl text-purple-600">
+                  <FiMapPin className="text-2xl" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold mb-2 text-gray-800">
+                    Visit Us
+                  </h3>
+                  <p className="text-gray-600">123 University Avenue</p>
+                  <p className="text-gray-600">Algiers, Algeria</p>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Social Links */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="flex justify-center gap-6 pt-6"
+            >
+              {[
+                {
+                  icon: <FiLinkedin />,
+                  color: "text-blue-700",
+                  hover: "hover:bg-blue-100",
+                  url: "https://linkedin.com",
+                },
+                {
+                  icon: <FiFacebook />,
+                  color: "text-blue-600",
+                  hover: "hover:bg-blue-100",
+                  url: "https://facebook.com",
+                },
+                {
+                  icon: <FiGithub />,
+                  color: "text-gray-700",
+                  hover: "hover:bg-gray-100",
+                  url: "https://github.com",
+                },
+              ].map((social, index) => (
+                <motion.a
+                  key={index}
+                  whileHover={{ y: -5 }}
+                  whileTap={{ scale: 0.9 }}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`p-3 rounded-full ${social.color} ${social.hover} transition-all duration-300`}
+                >
+                  {social.icon}
+                </motion.a>
+              ))}
+            </motion.div>
           </motion.div>
 
+          {/* Contact Form */}
           <motion.form
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6 }}
             onSubmit={handleSubmit}
-            className="bg-white p-8 rounded-2xl shadow-lg"
+            className="bg-white p-10 rounded-3xl shadow-xl border border-gray-100"
           >
+            <h3 className="text-2xl font-bold mb-6 text-gray-800">
+              Send us a message
+            </h3>
+
             <div className="space-y-6">
               <div>
-                <label className="block text-gray-700 mb-2">Name</label>
-                <motion.input
-                  whileFocus={{ scale: 1.02 }}
-                  type="text"
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData({ ...formData, name: e.target.value })
-                  }
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Full Name
+                </label>
+                <motion.div whileFocus={{ scale: 1.01 }}>
+                  <input
+                    type="text"
+                    className="w-full px-5 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    placeholder="Your name"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
+                  />
+                </motion.div>
               </div>
 
               <div>
-                <label className="block text-gray-700 mb-2">Email</label>
-                <motion.input
-                  whileFocus={{ scale: 1.02 }}
-                  type="email"
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  value={formData.email}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email Address
+                </label>
+                <motion.div whileFocus={{ scale: 1.01 }}>
+                  <input
+                    type="email"
+                    className="w-full px-5 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    placeholder="your@email.com"
+                    value={formData.email}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
+                  />
+                </motion.div>
               </div>
 
               <div>
-                <label className="block text-gray-700 mb-2">Message</label>
-                <motion.textarea
-                  whileFocus={{ scale: 1.02 }}
-                  className="w-full px-4 py-2 border rounded-lg h-32 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  value={formData.message}
-                  onChange={(e) =>
-                    setFormData({ ...formData, message: e.target.value })
-                  }
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Your Message
+                </label>
+                <motion.div whileFocus={{ scale: 1.01 }}>
+                  <textarea
+                    className="w-full px-5 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-40"
+                    placeholder="How can we help you?"
+                    value={formData.message}
+                    onChange={(e) =>
+                      setFormData({ ...formData, message: e.target.value })
+                    }
+                  />
+                </motion.div>
               </div>
 
               <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 type="submit"
-                className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-xl font-medium hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl"
               >
                 <FiSend className="text-lg" />
-                Send Message
+                <span>Send Message</span>
               </motion.button>
             </div>
           </motion.form>
@@ -164,4 +258,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default ContactPage;

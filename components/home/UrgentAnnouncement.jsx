@@ -1,86 +1,19 @@
 "use client";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { FiAlertTriangle, FiCalendar } from "react-icons/fi";
+import { motion } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
 import useAnnouncements from "@/hooks/useAnnouncements";
-import React, { useEffect, useState } from "react";
-import { FiLayers, FiBook, FiCalendar, FiAlertTriangle } from "react-icons/fi";
+import { useEffect, useState, useRef } from "react";
+
 const UrgentAnnouncement = () => {
-  const [activeDept, setActiveDept] = useState("cs");
-
-  const departments = {
-    cs: {
-      name: "Computer Science",
-      icon: <FiLayers className="text-blue-500" />,
-      announcements: [
-        {
-          id: 1,
-          title: "Final Project Submission Deadline Extended",
-          date: "June 5, 2024",
-          urgent: true,
-          content:
-            "The deadline for final project submissions has been extended to June 15th due to technical issues with the submission portal.",
-        },
-        {
-          id: 2,
-          title: "New Computer Lab Opening",
-          date: "May 28, 2024",
-          urgent: false,
-          content:
-            "The new AI research lab in Building C will open next Monday with state-of-the-art GPU workstations.",
-        },
-        {
-          id: 3,
-          title: "Summer Internship Opportunities",
-          date: "May 20, 2024",
-          urgent: false,
-          content:
-            "Local tech companies are offering summer internships for CS students. Applications due by June 1st.",
-        },
-      ],
-    },
-    math: {
-      name: "Mathematics",
-      icon: <FiBook className="text-purple-500" />,
-      announcements: [
-        {
-          id: 1,
-          title: "Advanced Calculus Exam Schedule",
-          date: "June 10, 2024",
-          urgent: true,
-          content:
-            "The final exam for Advanced Calculus will be held on June 15th from 9AM-12PM in the Main Auditorium.",
-        },
-        {
-          id: 2,
-          title: "Mathematics Symposium",
-          date: "June 5, 2024",
-          urgent: false,
-          content:
-            "Annual department symposium featuring guest speakers from MIT and Cambridge University.",
-        },
-      ],
-    },
-    physics: {
-      name: "Physics",
-      icon: <FiLayers className="text-green-500" />,
-      announcements: [
-        {
-          id: 1,
-          title: "Quantum Physics Lab Maintenance",
-          date: "June 1, 2024",
-          urgent: true,
-          content:
-            "The quantum lab will be closed June 3-7 for annual equipment maintenance and upgrades.",
-        },
-      ],
-    },
-  };
-  const {
-    loading: loadingAnnouncements,
-    data: announcementsData,
-    addAnnouncement,
-    removeAnnouncement,
-  } = useAnnouncements();
-
+  const { data: announcementsData } = useAnnouncements();
   const [urgentAnnouncements, setUrgentAnnouncements] = useState([]);
+  const containerRef = useRef(null);
+
   useEffect(() => {
     if (announcementsData) {
       const urgent = announcementsData.announcments.filter(
@@ -90,67 +23,105 @@ const UrgentAnnouncement = () => {
     }
   }, [announcementsData]);
 
-  //   if (loadingAnnouncements) {
-  //     return <div>loading</div>;
-  //   }
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 },
+  };
+
   return (
-    <div className=" bg-gray-50 p-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="mb-8 text-center">
-          <div className="text-3xl font-bold text-gray-800  justify-center items-center flex gap-2">
-            <FiCalendar className="text-blue-500 text-3xl mr-2" />
-            <span>Announcements</span>
-          </div>
+    <div
+      ref={containerRef}
+      className="flex justify-center items-center flex-col py-8 px-8 max-w-7xl mx-auto"
+    >
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.3 }}
+        className="mb-8"
+      >
+        <div className="flex items-center gap-3 mb-2">
+          <FiCalendar className="w-6 h-6 text-primary" />
+          <h1 className="text-2xl font-bold tracking-tight">Announcements</h1>
         </div>
+        <p className="text-muted-foreground">
+          Important updates and urgent notices
+        </p>
+      </motion.div>
 
-        <div className="space-y-6">
-          {urgentAnnouncements.map((announcement) => (
-            <div
-              key={announcement.id}
-              className={`bg-white p-6 rounded-xl shadow-sm border-l-4 ${announcement.urgent ? "border-red-500" : "border-blue-500"
-                }`}
+      <Tabs defaultValue="urgent" className="w-full">
+        <TabsContent value="urgent">
+          {urgentAnnouncements.filter((a) => a.urgent == 1).length > 0 ? (
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, margin: "-100px" }}
+              className="space-y-4"
             >
-              <div className="flex justify-between items-start">
-                <h3 className="text-xl font-medium mb-2">
-                  {announcement.title}
-                </h3>
-                {announcement.urgent == 1 && (
-                  <span className="flex items-center text-red-500 text-sm">
-                    <FiAlertTriangle className="mr-1" /> Urgent
-                  </span>
-                )}
-              </div>
-              <p>
-                <span className="text-black opacity-75 font-semibold uppercase text-md tracking-wide">
-                  {announcement.department}
-                </span>
-              </p>
-              <p className="text-gray-500 text-sm mb-3">
-                {announcement.datetime
-                  ? (() => {
-                    const date = new Date(announcement.datetime);
-                    const day = String(date.getDate()).padStart(2, "0");
-                    const month = date.toLocaleString("en-GB", {
-                      month: "long",
-                    });
-                    const year = date.getFullYear();
-                    return `${day} ${month} ${year}`;
-                  })()
-                  : ""}
-              </p>
-              <p className="text-gray-700">{announcement.content}</p>
-            </div>
-          ))}
-
-          {urgentAnnouncements.length === 0 && (
-            <div className="bg-white p-8 rounded-xl shadow-sm text-center">
-              <p className="text-gray-500">
-                No announcements available for this department
-              </p>
-            </div>
+              {urgentAnnouncements
+                .filter((a) => a.urgent == 1)
+                .map((announcement) => (
+                  <motion.div key={announcement.id} variants={itemVariants}>
+                    <Card className="border-l-4 border-destructive">
+                      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+                        <div>
+                          <CardTitle className="text-lg">
+                            {announcement.title}
+                          </CardTitle>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="outline">
+                              {announcement.department}
+                            </Badge>
+                            <Badge variant="destructive">
+                              <FiAlertTriangle className="w-3 h-3 mr-1" />
+                              Urgent
+                            </Badge>
+                          </div>
+                        </div>
+                        <span className="text-sm text-muted-foreground">
+                          {formatDate(announcement.datetime)}
+                        </span>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-muted-foreground">
+                          {announcement.content}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+            </motion.div>
+          ) : (
+            <Alert>
+              <AlertTitle>No urgent announcements</AlertTitle>
+              <AlertDescription>
+                There are currently no urgent announcements.
+              </AlertDescription>
+            </Alert>
           )}
-        </div>
-      </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
