@@ -568,7 +568,7 @@ const Dashboard = () => {
                           <div className="flex items-center gap-2 text-sm">
                             <span className="text-gray-500">Supervisor:</span>
                             <span className="font-medium truncate max-w-[170px]">
-                              {project.supervisor}
+                              {project.supervisor} .
                             </span>
                           </div>
                         </div>
