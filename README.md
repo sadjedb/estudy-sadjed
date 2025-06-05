@@ -43,28 +43,12 @@ Role	Default Credentials	Accessible Routes
 Student	email: gmail@gmail.com : gmail@gmail.com	/dashboard, /courses, etc.
 Admin	email: gmail@gmail.com : gmail@gmail.com	/admin, management panels
 
-nextJs File Structure :
+## 📂 Next.js File Structure
 
+```text
 .
-├── .env
-├── .env.local
-├── .gitignore
-├── components.json
-├── eslint.config.mjs
-├── file_structure.txt
-├── jsconfig.json
-├── next.config.mjs
-├── package-lock.json
-├── package.json
-├── postcss.config.mjs
-├── README.md
-├── test.py
 ├── app/
-│   ├── favicon.ico
-│   ├── globals.css
-│   ├── layout.jsx
-│   ├── page.jsx
-│   ├── (main)/
+│   ├── (main)/               # Student routes group
 │   │   ├── announcments/
 │   │   │   └── page.jsx
 │   │   ├── contact/
@@ -105,6 +89,10 @@ nextJs File Structure :
 │   │   │   └── route.js
 │   │   └── whishlist/
 │   │       └── route.js
+│   ├── favicon.ico
+│   ├── globals.css
+│   ├── layout.jsx
+│   ├── page.jsx
 │   ├── login/
 │   │   └── page.jsx
 │   └── unauthorized/
@@ -119,7 +107,6 @@ nextJs File Structure :
 │   ├── Providers.jsx
 │   ├── admin/
 │   │   ├── AdminDashboard.jsx
-│   │   ├── react projects.lnk
 │   │   ├── Announcements/
 │   │   │   ├── AnnouncementForm.jsx
 │   │   │   ├── AnnouncementItem.jsx
@@ -188,13 +175,22 @@ nextJs File Structure :
 │   │       └── database.js
 │   └── utils/
 │       └── withAuth.js
-└── public/
-    ├── dep_data.json
-    ├── file.svg
-    ├── globe.svg
-    ├── next.svg
-    ├── student_portal_project.sql
-    ├── vercel.svg
-    └── window.svg
-
-
+├── public/
+│   ├── dep_data.json
+│   ├── file.svg
+│   ├── globe.svg
+│   ├── next.svg
+│   ├── student_portal_project.sql
+│   ├── vercel.svg
+│   └── window.svg
+├── .env
+├── .env.local
+├── .gitignore
+├── components.json
+├── eslint.config.mjs
+├── jsconfig.json
+├── next.config.mjs
+├── package.json
+├── package-lock.json
+├── postcss.config.mjs
+└── README.md
