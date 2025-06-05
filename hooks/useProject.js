@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect } from "react";
 
 const useProject = () => {
@@ -42,9 +43,9 @@ const useProject = () => {
     setLoading(true);
     try {
       const response = await fetch(url, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(project),
       });
@@ -54,13 +55,12 @@ const useProject = () => {
       setData((prevData) => ({
         ...prevData,
         projects: [
-          ...(prevData.projects || [])
-            .filter((p) => p.id !== result.projectId),
-          { ...project, id: result.projectId }
-        ]
+          ...(prevData.projects || []).filter((p) => p.id !== result.projectId),
+          { ...project, id: result.projectId },
+        ],
       }));
     } catch (error) {
-      console.error('Error adding project:', error);
+      console.error("Error adding project:", error);
     } finally {
       setLoading(false);
     }
@@ -80,7 +80,9 @@ const useProject = () => {
       if (response.ok) {
         setData((prevData) => ({
           ...prevData,
-          projects: (prevData.projects || []).filter((item) => item.id !== projectId)
+          projects: (prevData.projects || []).filter(
+            (item) => item.id !== projectId
+          ),
         }));
       }
     } catch (error) {
@@ -90,7 +92,34 @@ const useProject = () => {
     }
   };
 
-  return { loading, data, statusCode, addProject, removeProject };
+  const getProjectById = async (projectId) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${url}?id=${projectId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      setStatusCode(response.status);
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.error("Error fetching project by ID:", error);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    loading,
+    data,
+    statusCode,
+    addProject,
+    removeProject,
+    getProjectById,
+  };
 };
 
 export default useProject;

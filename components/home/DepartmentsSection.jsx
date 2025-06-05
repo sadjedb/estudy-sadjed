@@ -14,8 +14,11 @@ import { FaLaptopCode, FaSquareRootAlt } from "react-icons/fa";
 import { MdScience } from "react-icons/md";
 import { GiChemicalDrop } from "react-icons/gi";
 import { ArrowRight } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 const DepartmentsSection = () => {
+  const pathname = usePathname();
+  console.log("Current Pathname:", pathname);
   const departments = [
     {
       icon: <FaLaptopCode className="w-8 h-8" />,
@@ -99,7 +102,7 @@ const DepartmentsSection = () => {
         >
           {departments.map((dept, index) => (
             <motion.div key={index} variants={item}>
-              <Card className="hover:shadow-lg transition-shadow h-full flex flex-col group border-0 shadow-sm hover:shadow-md">
+              <Card className="hover:shadow-lg transition-shadow h-full flex flex-col group border-0 shadow-sm">
                 <CardHeader className="pb-4">
                   <div
                     className={`${dept.bgColor} ${dept.iconColor} w-14 h-14 rounded-lg flex items-center justify-center mb-4 transition-all group-hover:scale-110`}
@@ -131,20 +134,22 @@ const DepartmentsSection = () => {
           ))}
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          viewport={{ once: true }}
-          className="mt-12 text-center"
-        >
-          <Button asChild size="lg" variant={"outline"} className="px-8">
-            <Link href="/departments" className="gap-2">
-              View All Departments
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
-        </motion.div>
+        {!pathname.includes("/departments") ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            viewport={{ once: true }}
+            className="mt-12 text-center"
+          >
+            <Button asChild size="lg" variant={"outline"} className="px-8">
+              <Link href="/departments" className="gap-2">
+                View All Departments
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </motion.div>
+        ) : null}
       </div>
     </section>
   );

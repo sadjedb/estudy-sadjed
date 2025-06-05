@@ -150,7 +150,10 @@ export const ContactSection = () => {
             <br />
             Closed on Sundays and public holidays
           </p>
-          <Link variant="" href={"/contact"} className="gap-2">
+          <Link
+            href={"/contact"}
+            className="gap-2 border-[1px] border-gray-300 hover:bg-gray-100 transition-colors px-4 py-2 rounded-md inline-flex items-center "
+          >
             <Phone className="w-4 h-4" />
             Emergency Contact
           </Link>

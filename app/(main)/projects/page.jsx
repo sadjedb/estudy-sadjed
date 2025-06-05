@@ -45,7 +45,6 @@ const Page = ({ session }) => {
 
   const filteredProjects =
     projectsData?.projects.filter((project) => {
-      // Search filter
       const searchLower = searchQuery.toLowerCase();
       const matchesSearch =
         project.title.toLowerCase().includes(searchLower) ||
@@ -53,12 +52,10 @@ const Page = ({ session }) => {
         project.department.toLowerCase().includes(searchLower) ||
         project.supervisor.toLowerCase().includes(searchLower);
 
-      // Department filter
       const matchesDepartment =
         departmentFilter === "all" ||
         project.department.toLowerCase() === departmentFilter;
 
-      // Availability filter
       const matchesAvailability =
         availabilityFilter === "all" ||
         (availabilityFilter === "available" && project.available_spots > 0) ||
